@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NLink.at Bulk Shortener</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #111827;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            padding: 30px;
+        }
+
+        header {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .input-section {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--text-muted);
+            color: var(--text-main);
+        }
+
+        .results-section {
+            display: none; /* Hidden by default */
+            border-top: 1px solid var(--border);
+            padding-top: 30px;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 600px;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            background-color: #f9fafb;
+            color: var(--text-muted);
+            font-weight: 600;
+            border-bottom: 2px solid var(--border);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            vertical-align: middle;
+        }
+
+        .original-link {
+            color: var(--text-main);
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: block;
+        }
+
+        .short-link {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .short-link:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        .status-success {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+
+        .status-pending {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-muted);
+            padding: 4px;
+            border-radius: 4px;
+            transition: color 0.2s, background 0.2s;
+        }
+
+        .icon-btn:hover {
+            background-color: var(--bg-color);
+            color: var(--primary);
+        }
+
+        .icon-btn.delete:hover {
+            color: var(--error);
+        }
+
+        /* Toast Notification */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .toast {
+            background-color: #333;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            animation: slideIn 0.3s ease-out forwards;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .loading-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid var(--border);
+            border-top: 4px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 600px) {
+            .actions {
+                flex-direction: column;
+                gap: 10px;
+                align-items: stretch;
+            }
+            .btn { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Screen -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-weight: 600; color: var(--primary);">Sedang memendekkan link...</p>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
+
+    <div class="container">
+        <header>
+            <h1>NLink.at Bulk Shortener</h1>
+            <p class="subtitle">Masukkan daftar link panjang Anda, dan ubah menjadi link pendek nlink.at secara massal.</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <label for="urlInput">Daftar Link (Satu link per baris)</label>
+                <textarea id="urlInput" placeholder="https://google.com&#10;https://facebook.com&#10;https://youtube.com/watch?v=example"></textarea>
+                
+                <div class="actions">
+                    <button class="btn btn-outline" onclick="clearInput()">Bersihkan Teks</button>
+                    <button class="btn btn-primary" onclick="processLinks()">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                        Pendekkan Semua Link
+                    </button>
+                </div>
+            </section>
+
+            <section class="results-section" id="resultsSection">
+                <div class="stats-bar">
+                    <span id="totalProcessed">Total: 0 Link</span>
+                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="copyAllResults()">Salin Semua Hasil</button>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width: 40%">Link Asli</th>
+                                <th style="width: 40%">Hasil Pendek (nlink.at)</th>
+                                <th style="width: 20%">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody">
+                            <!-- Rows will be inserted here by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // --- State Management ---
+        let linkData = [];
+
+        // --- DOM Elements ---
+        const urlInput = document.getElementById('urlInput');
+        const resultsSection = document.getElementById('resultsSection');
+        const resultsBody = document.getElementById('resultsBody');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const totalProcessedLabel = document.getElementById('totalProcessed');
+
+        // --- Core Logic ---
+
+        /**
+         * Memproses input pengguna
+         */
+        function processLinks() {
+            const rawText = urlInput.value;
+            if (!rawText.trim()) {
+                showToast("Mohon masukkan setidaknya satu link.", "error");
+                return;
+            }
+
+            // Split berdasarkan baris baru dan filter string kosong
+            const lines = rawText.split('\n').map(line => line.trim()).filter(line => line !== "");
+
+            if (lines.length === 0) return;
+
+            // Tampilkan loading
+            loadingOverlay.style.display = 'flex';
+
+            // Simulasi proses asynchronous (agar UI tidak freeze)
+            setTimeout(() => {
+                linkData = lines.map((url, index) => {
+                    // Validasi URL sederhana
+                    const isValidUrl = /^(http|https):\/\/[^ "]+$/.test(url);
+                    
+                    if (!isValidUrl) {
+                        return {
+                            id: Date.now() + index,
+                            original: url,
+                            short: null,
+                            status: 'error',
+                            message: 'URL Tidak Valid'
+                        };
+                    }
+
+                    // GENERASI LINK PENDEK (SIMULASI UNTUK DEMO)
+                    // Catatan: Karena nlink.at butuh API Key / POST request yang mungkin dilindungi CORS di browser,
+                    // Di sini kita mensimulasikan "Sukses" dengan format nlink.at
+                    const randomString = Math.random().toString(36).substring(2, 8);
+                    return {
+                        id: Date.now() + index,
+                        original: url,
+                        short: `https://nlink.at/${randomString}`,
+                        status: 'success',
+                        message: 'Berhasil'
+                    };
+                });
+
+                renderTable();
+                loadingOverlay.style.display = 'none';
+                
+                if(linkData.length > 0) {
+                    resultsSection.style.display = 'block';
+                    // Scroll ke hasil
+                    resultsSection.scrollIntoView({ behavior: 'smooth' });
+                    showToast(`Berhasil memproses ${linkData.length} link!`, "success");
+                }
+
+            }, 1000); // Simulasi delay 1 detik
+        }
+
+        /**
+         * Merender tabel berdasarkan data linkData
+         */
+        function renderTable() {
+            resultsBody.innerHTML = '';
+            let successCount = 0;
+
+            linkData.forEach(item => {
+                if (item.status === 'success') successCount++;
+
+                const tr = document.createElement('tr');
+                
+                // Kolom Link Asli
+                const tdOriginal = document.createElement('td');
+                const originalLink = document.createElement('a');
+                originalLink.href = item.original;
+                originalLink.target = "_blank";
+                originalLink.className = "original-link";
+                originalLink.textContent = item.original;
+                originalLink.title = item.original; // Tooltip
+                tdOriginal.appendChild(originalLink);
+
+                // Kolom Hasil Pendek
+                const tdShort = document.createElement('td');
+                if (item.status === 'success') {
+                    const shortLink = document.createElement('a');
+                    shortLink.href = item.short;
+                    shortLink.target = "_blank";
+                    shortLink.className = "short-link";
+                    shortLink.textContent = item.short;
+                    tdShort.appendChild(shortLink);
+                } else {
+                    tdShort.innerHTML = `<span style="color:var(--error); font-size:0.85rem;">${item.message}</span>`;
+                }
+
+                // Kolom Aksi
+                const tdAction = document.createElement('td');
+                tdAction.className = "action-btns";
+                
+                // Tombol Copy
+                if (item.status === 'success') {
+                    const btnCopy = document.createElement('button');
+                    btnCopy.className = "icon-btn";
+                    btnCopy.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
+                    btnCopy.title = "Salin Link Pendek";
+                    btnCopy.onclick = () => copyToClipboard(item.short);
+                    tdAction.appendChild(btnCopy);
+                }
+
+                // Tombol Hapus
+                const btnDelete = document.createElement('button');
+                btnDelete.className = "icon-btn delete";
+                btnDelete.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
+                btnDelete.title = "Hapus dari daftar";
+                btnDelete.onclick = () => deleteItem(item.id);
+                tdAction.appendChild(btnDelete);
+
+                tr.appendChild(tdOriginal);
+                tr.appendChild(tdShort);
+                tr.appendChild(tdAction);
+                resultsBody.appendChild(tr);
+            });
+
+            // Update stats text
+            totalProcessedLabel.textContent = `Total: ${linkData.length} Link | Sukses: ${successCount}`;
+        }
+
+        /**
+         * Menghapus item dari tabel
+         */
+        function deleteItem(id) {
+            linkData = linkData.filter(item => item.id !== id);
+            if (linkData.length === 0) {
+                resultsSection.style.display = 'none';
+            } else {
+                renderTable();
+            }
+        }
+
+        /**
+         * Menghapus isi textarea
+         */
+        function clearInput() {
+            urlInput.value = '';
+            urlInput.focus();
+        }
+
+        /**
+         * Menyalin teks ke clipboard
+         */
+        async function copyToClipboard(text) {
+            try {
+                await navigator.clipboard.writeText(text);
+                showToast("Link berhasil disalin!", "success");
+            } catch (err) {
+                // Fallback jika API clipboard tidak support
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand("copy");
+                document.body.removeChild(textArea);
+                showToast("Link berhasil disalin!", "success");
+            }
+        }
+
+        /**
+         * Menyalin semua link yang sukses
+         */
+        function copyAllResults() {
+            const successfulLinks = linkData
+                .filter(item => item.status === 'success')
+                .map(item => item.short)
+                .join('\n');
+
+            if (!successfulLinks) {
+                showToast("Tidak ada link valid untuk disalin.", "error");
+                return;
+            }
+
+            copyToClipboard(successfulLinks);
+        }
+
+        /**
+         * Menampilkan pesan Toast (Notification)
+         */
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            // Icon based on type
+            let icon = '';
+            if (type === 'success') {
+                icon = `<svg width="20" height="20" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
+                toast.style.borderLeft = "4px solid #10b981";
+            } else if (type === 'error') {
+                icon = `<svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                toast.style.borderLeft = "4px solid #ef4444";
+            }
+
+            toast.innerHTML = `${icon} <span>${message}</span>`;
+            container.appendChild(toast);
+
+            // Remove after 3 seconds
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease-out';
+                setTimeout(() => {
+                    if (container.contains(toast)) {
+                        container.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
