@@ -3,31 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NLink.at Bulk Shortener</title>
+    <title>Advanced Bulk Shortener (API Ready)</title>
     <style>
         :root {
-            --primary: #4f46e5;
-            --primary-hover: #4338ca;
-            --bg-color: #f3f4f6;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-main: #111827;
-            --text-muted: #6b7280;
-            --border: #e5e7eb;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
             --success: #10b981;
             --error: #ef4444;
+            --warning: #f59e0b;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
 
         body {
             background-color: var(--bg-color);
             color: var(--text-main);
-            line-height: 1.6;
             padding: 20px;
             min-height: 100vh;
             display: flex;
@@ -36,544 +31,408 @@
 
         .container {
             width: 100%;
-            max-width: 900px;
+            max-width: 950px;
             background: var(--card-bg);
             border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
             padding: 30px;
         }
 
-        header {
-            margin-bottom: 30px;
-            text-align: center;
-        }
+        /* Header */
+        header { margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
+        h1 { font-size: 1.5rem; color: var(--text-main); margin-bottom: 5px; }
+        p.subtitle { color: var(--text-muted); font-size: 0.9rem; }
 
-        h1 {
-            font-size: 1.8rem;
-            color: var(--primary);
-            margin-bottom: 8px;
-        }
-
-        p.subtitle {
-            color: var(--text-muted);
-            font-size: 0.95rem;
-        }
-
-        .input-section {
-            margin-bottom: 30px;
-        }
-
-        label {
-            display: block;
-            font-weight: 600;
-            margin-bottom: 10px;
-            font-size: 1rem;
-        }
-
-        textarea {
-            width: 100%;
-            height: 150px;
+        /* API Config Section */
+        .api-config {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
             padding: 15px;
-            border: 2px solid var(--border);
             border-radius: 8px;
-            resize: vertical;
-            font-size: 0.95rem;
-            transition: border-color 0.2s;
+            margin-bottom: 25px;
         }
-
-        textarea:focus {
-            outline: none;
-            border-color: var(--primary);
+        .api-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .api-title { font-weight: 600; color: #1e40af; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
+        .api-content { display: none; margin-top: 15px; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .api-content.active { display: grid; }
+        
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+        .form-group input {
+            width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
         }
+        .api-note { grid-column: span 2; font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.6); padding: 10px; border-radius: 4px; }
 
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-top: 20px;
+        /* Input Section */
+        .input-section { margin-bottom: 25px; }
+        .label-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+        .label-row label { font-weight: 600; font-size: 1rem; }
+        
+        textarea {
+            width: 100%; height: 160px; padding: 15px;
+            border: 2px solid var(--border); border-radius: 8px; resize: vertical;
+            font-family: monospace; font-size: 0.9rem;
         }
+        textarea:focus { outline: none; border-color: var(--primary); }
 
+        /* Actions */
+        .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
         .btn {
-            padding: 10px 20px;
-            border-radius: 6px;
-            border: none;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
+            padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem;
+            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
         }
+        .btn-primary { background-color: var(--primary); color: white; }
+        .btn-primary:hover { background-color: var(--primary-hover); }
+        .btn-secondary { background-color: white; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-secondary:hover { background-color: var(--bg-color); }
 
-        .btn-primary {
-            background-color: var(--primary);
-            color: white;
-        }
+        /* Results Table */
+        .results-section { display: none; border-top: 1px solid var(--border); padding-top: 25px; }
+        .stats { margin-bottom: 15px; font-size: 0.9rem; color: var(--text-muted); }
+        
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { text-align: left; padding: 12px; background: #f1f5f9; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700; }
+        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
+        
+        .link-cell { max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); text-decoration: none; display: block; }
+        .link-cell.short { color: var(--primary); font-weight: 600; }
+        .link-cell.short:hover { text-decoration: underline; }
+        
+        .status-badge { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+        .status-badge.success { background: #dcfce7; color: #166534; }
+        .status-badge.error { background: #fee2e2; color: #991b1b; }
+        .status-badge.processing { background: #e0f2fe; color: #075985; }
 
-        .btn-primary:hover {
-            background-color: var(--primary-hover);
-        }
+        .icon-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 4px; transition: 0.2s; }
+        .icon-btn:hover { background: #f1f5f9; color: var(--primary); }
 
-        .btn-outline {
-            background-color: transparent;
-            border: 2px solid var(--border);
-            color: var(--text-muted);
-        }
-
-        .btn-outline:hover {
-            border-color: var(--text-muted);
-            color: var(--text-main);
-        }
-
-        .results-section {
-            display: none; /* Hidden by default */
-            border-top: 1px solid var(--border);
-            padding-top: 30px;
-        }
-
-        .stats-bar {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            font-size: 0.9rem;
-            color: var(--text-muted);
-        }
-
-        .table-container {
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-
-        th {
-            text-align: left;
-            padding: 12px;
-            background-color: #f9fafb;
-            color: var(--text-muted);
-            font-weight: 600;
-            border-bottom: 2px solid var(--border);
-            font-size: 0.85rem;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        td {
-            padding: 12px;
-            border-bottom: 1px solid var(--border);
-            font-size: 0.9rem;
-            vertical-align: middle;
-        }
-
-        .original-link {
-            color: var(--text-main);
-            max-width: 300px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: block;
-        }
-
-        .short-link {
-            color: var(--primary);
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        .short-link:hover {
-            text-decoration: underline;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
-            font-weight: 700;
-        }
-
-        .status-success {
-            background-color: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-pending {
-            background-color: #dbeafe;
-            color: #1e40af;
-        }
-
-        .action-btns {
-            display: flex;
-            gap: 8px;
-        }
-
-        .icon-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            color: var(--text-muted);
-            padding: 4px;
-            border-radius: 4px;
-            transition: color 0.2s, background 0.2s;
-        }
-
-        .icon-btn:hover {
-            background-color: var(--bg-color);
-            color: var(--primary);
-        }
-
-        .icon-btn.delete:hover {
-            color: var(--error);
-        }
-
-        /* Toast Notification */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 1000;
-        }
-
-        .toast {
-            background-color: #333;
-            color: white;
-            padding: 12px 24px;
-            border-radius: 6px;
-            margin-top: 10px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            animation: slideIn 0.3s ease-out forwards;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
+        /* Toast & Loading */
+        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { background: #334155; color: white; padding: 12px 20px; border-radius: 6px; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         .loading-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(255,255,255,0.8);
-            z-index: 999;
-            align-items: center;
-            justify-content: center;
-            flex-direction: column;
+            display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8);
+            z-index: 999; align-items: center; justify-content: center; flex-direction: column;
         }
-
-        .spinner {
-            width: 40px;
-            height: 40px;
-            border: 4px solid var(--border);
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Mobile Adjustments */
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        
         @media (max-width: 600px) {
-            .actions {
-                flex-direction: column;
-                gap: 10px;
-                align-items: stretch;
-            }
-            .btn { justify-content: center; }
+            .api-content { grid-template-columns: 1fr; }
+            .actions { flex-direction: column; gap: 10px; }
+            .btn { width: 100%; justify-content: center; }
         }
     </style>
 </head>
 <body>
 
-    <!-- Loading Screen -->
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 600; color: var(--primary);">Sedang memendekkan link...</p>
+        <p style="margin-top: 15px; font-weight: 600;">Memproses link...</p>
     </div>
 
-    <!-- Toast Container -->
     <div id="toast-container"></div>
 
     <div class="container">
         <header>
-            <h1>NLink.at Bulk Shortener</h1>
-            <p class="subtitle">Masukkan daftar link panjang Anda, dan ubah menjadi link pendek nlink.at secara massal.</p>
+            <h1>Bulk Shortener Pro</h1>
+            <p class="subtitle">Pemendek link massal dengan dukungan API Custom.</p>
         </header>
 
-        <main>
-            <section class="input-section">
-                <label for="urlInput">Daftar Link (Satu link per baris)</label>
-                <textarea id="urlInput" placeholder="https://google.com&#10;https://facebook.com&#10;https://youtube.com/watch?v=example"></textarea>
-                
-                <div class="actions">
-                    <button class="btn btn-outline" onclick="clearInput()">Bersihkan Teks</button>
-                    <button class="btn btn-primary" onclick="processLinks()">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                        Pendekkan Semua Link
-                    </button>
+        <!-- Konfigurasi API -->
+        <section class="api-config">
+            <div class="api-header" onclick="toggleApiConfig()">
+                <div class="api-title">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                    Pengaturan API (Penting untuk Redirect Asli)
                 </div>
-            </section>
+                <span id="apiToggleIcon">▼</span>
+            </div>
+            <div class="api-content" id="apiContent">
+                <div class="form-group">
+                    <label>API Endpoint URL</label>
+                    <input type="text" id="apiEndpoint" placeholder="https://api.tinyurl.com/create" value="">
+                    <small style="color:var(--text-muted)">Contoh TinyURL Gratis: https://api.tinyurl.com/create</small>
+                </div>
+                <div class="form-group">
+                    <label>API Key (Token)</label>
+                    <input type="password" id="apiKey" placeholder="Masukkan API Key Anda disini">
+                </div>
+                <div class="api-note">
+                    <strong>Info:</strong> Jika kolom ini kosong, alat akan berjalan dalam <em>Mode Simulasi</em> (Link tidak akan redirect). 
+                    Untuk membuat link berfungsi, masukkan Endpoint API yang valid. 
+                    TinyURL menyediakan API gratis yang mudah digunakan untuk keperluan ini.
+                </div>
+            </div>
+        </section>
 
-            <section class="results-section" id="resultsSection">
-                <div class="stats-bar">
-                    <span id="totalProcessed">Total: 0 Link</span>
-                    <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="copyAllResults()">Salin Semua Hasil</button>
-                </div>
-                
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style="width: 40%">Link Asli</th>
-                                <th style="width: 40%">Hasil Pendek (nlink.at)</th>
-                                <th style="width: 20%">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="resultsBody">
-                            <!-- Rows will be inserted here by JS -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+        <section class="input-section">
+            <div class="label-row">
+                <label for="urlInput">Daftar Link (Satu per baris)</label>
+                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;" onclick="loadExample()">Contoh Link</button>
+            </div>
+            <textarea id="urlInput" placeholder="https://example.com/offer1&#10;https://google.com&#10;https://facebook.com"></textarea>
+            
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="document.getElementById('urlInput').value=''">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    Reset
+                </button>
+                <button class="btn btn-primary" onclick="startProcessing()">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
+                    Proses Sekarang
+                </button>
+            </div>
+        </section>
+
+        <section class="results-section" id="resultsSection">
+            <div class="stats">
+                <span id="statusText">Siap</span>
+                <button class="btn btn-secondary" style="padding: 4px 12px; font-size: 0.8rem; float: right;" onclick="exportResults()">Export CSV</button>
+            </div>
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%">#</th>
+                            <th style="width: 40%">Link Asli (Original)</th>
+                            <th style="width: 40%">Link Pendek (Short)</th>
+                            <th style="width: 15%">Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody"></tbody>
+                </table>
+            </div>
+        </section>
     </div>
 
     <script>
-        // --- State Management ---
-        let linkData = [];
-
-        // --- DOM Elements ---
-        const urlInput = document.getElementById('urlInput');
+        // --- State ---
+        let processedData = [];
+        
+        // --- DOM ---
         const resultsSection = document.getElementById('resultsSection');
         const resultsBody = document.getElementById('resultsBody');
         const loadingOverlay = document.getElementById('loadingOverlay');
-        const totalProcessedLabel = document.getElementById('totalProcessed');
+        const urlInput = document.getElementById('urlInput');
+        const apiEndpointInput = document.getElementById('apiEndpoint');
+        const apiKeyInput = document.getElementById('apiKey');
 
-        // --- Core Logic ---
+        // --- Config Logic ---
+        function toggleApiConfig() {
+            const content = document.getElementById('apiContent');
+            const icon = document.getElementById('apiToggleIcon');
+            content.classList.toggle('active');
+            icon.textContent = content.classList.contains('active') ? '▲' : '▼';
+        }
 
-        /**
-         * Memproses input pengguna
-         */
-        function processLinks() {
-            const rawText = urlInput.value;
-            if (!rawText.trim()) {
-                showToast("Mohon masukkan setidaknya satu link.", "error");
+        function loadExample() {
+            urlInput.value = "https://shopee.co.id/product-promo\nhttps://tokopedia.com/gadget-sale\nhttps://youtube.com/watch?v=demo";
+        }
+
+        // --- Main Process Function ---
+        async function startProcessing() {
+            const urls = urlInput.value.split('\n').map(u => u.trim()).filter(u => u);
+            const endpoint = apiEndpointInput.value.trim();
+            const apiKey = apiKeyInput.value.trim();
+
+            if (urls.length === 0) {
+                showToast("Masukkan link terlebih dahulu!", "error");
                 return;
             }
 
-            // Split berdasarkan baris baru dan filter string kosong
-            const lines = rawText.split('\n').map(line => line.trim()).filter(line => line !== "");
-
-            if (lines.length === 0) return;
-
-            // Tampilkan loading
-            loadingOverlay.style.display = 'flex';
-
-            // Simulasi proses asynchronous (agar UI tidak freeze)
-            setTimeout(() => {
-                linkData = lines.map((url, index) => {
-                    // Validasi URL sederhana
-                    const isValidUrl = /^(http|https):\/\/[^ "]+$/.test(url);
-                    
-                    if (!isValidUrl) {
-                        return {
-                            id: Date.now() + index,
-                            original: url,
-                            short: null,
-                            status: 'error',
-                            message: 'URL Tidak Valid'
-                        };
-                    }
-
-                    // GENERASI LINK PENDEK (SIMULASI UNTUK DEMO)
-                    // Catatan: Karena nlink.at butuh API Key / POST request yang mungkin dilindungi CORS di browser,
-                    // Di sini kita mensimulasikan "Sukses" dengan format nlink.at
-                    const randomString = Math.random().toString(36).substring(2, 8);
-                    return {
-                        id: Date.now() + index,
-                        original: url,
-                        short: `https://nlink.at/${randomString}`,
-                        status: 'success',
-                        message: 'Berhasil'
-                    };
-                });
-
-                renderTable();
-                loadingOverlay.style.display = 'none';
-                
-                if(linkData.length > 0) {
-                    resultsSection.style.display = 'block';
-                    // Scroll ke hasil
-                    resultsSection.scrollIntoView({ behavior: 'smooth' });
-                    showToast(`Berhasil memproses ${linkData.length} link!`, "success");
-                }
-
-            }, 1000); // Simulasi delay 1 detik
-        }
-
-        /**
-         * Merender tabel berdasarkan data linkData
-         */
-        function renderTable() {
-            resultsBody.innerHTML = '';
-            let successCount = 0;
-
-            linkData.forEach(item => {
-                if (item.status === 'success') successCount++;
-
-                const tr = document.createElement('tr');
-                
-                // Kolom Link Asli
-                const tdOriginal = document.createElement('td');
-                const originalLink = document.createElement('a');
-                originalLink.href = item.original;
-                originalLink.target = "_blank";
-                originalLink.className = "original-link";
-                originalLink.textContent = item.original;
-                originalLink.title = item.original; // Tooltip
-                tdOriginal.appendChild(originalLink);
-
-                // Kolom Hasil Pendek
-                const tdShort = document.createElement('td');
-                if (item.status === 'success') {
-                    const shortLink = document.createElement('a');
-                    shortLink.href = item.short;
-                    shortLink.target = "_blank";
-                    shortLink.className = "short-link";
-                    shortLink.textContent = item.short;
-                    tdShort.appendChild(shortLink);
-                } else {
-                    tdShort.innerHTML = `<span style="color:var(--error); font-size:0.85rem;">${item.message}</span>`;
-                }
-
-                // Kolom Aksi
-                const tdAction = document.createElement('td');
-                tdAction.className = "action-btns";
-                
-                // Tombol Copy
-                if (item.status === 'success') {
-                    const btnCopy = document.createElement('button');
-                    btnCopy.className = "icon-btn";
-                    btnCopy.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>`;
-                    btnCopy.title = "Salin Link Pendek";
-                    btnCopy.onclick = () => copyToClipboard(item.short);
-                    tdAction.appendChild(btnCopy);
-                }
-
-                // Tombol Hapus
-                const btnDelete = document.createElement('button');
-                btnDelete.className = "icon-btn delete";
-                btnDelete.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>`;
-                btnDelete.title = "Hapus dari daftar";
-                btnDelete.onclick = () => deleteItem(item.id);
-                tdAction.appendChild(btnDelete);
-
-                tr.appendChild(tdOriginal);
-                tr.appendChild(tdShort);
-                tr.appendChild(tdAction);
-                resultsBody.appendChild(tr);
-            });
-
-            // Update stats text
-            totalProcessedLabel.textContent = `Total: ${linkData.length} Link | Sukses: ${successCount}`;
-        }
-
-        /**
-         * Menghapus item dari tabel
-         */
-        function deleteItem(id) {
-            linkData = linkData.filter(item => item.id !== id);
-            if (linkData.length === 0) {
-                resultsSection.style.display = 'none';
+            // Check mode
+            const isSimulation = !endpoint || !apiKey;
+            
+            if (isSimulation) {
+                showToast("Mode Simulasi Aktif (API Kosong). Link TIDAK akan redirect asli.", "warning");
             } else {
-                renderTable();
+                showToast("Menghubungi API... Mohon tunggu.", "info");
+            }
+
+            loadingOverlay.style.display = 'flex';
+            resultsSection.style.display = 'block';
+            resultsBody.innerHTML = ''; // Clear previous
+            processedData = [];
+
+            // Process sequentially or in parallel (Parallel is faster but may hit rate limits)
+            // We will process sequentially for stability in this demo
+            for (let i = 0; i < urls.length; i++) {
+                const originalUrl = urls[i];
+                
+                // Add placeholder row
+                const rowId = `row-${i}`;
+                addTableRow(rowId, i+1, originalUrl, 'processing', 'Memproses...');
+                
+                let result = {
+                    id: i+1,
+                    original: originalUrl,
+                    short: '-',
+                    status: 'pending'
+                };
+
+                if (!isValidUrl(originalUrl)) {
+                    result.status = 'error';
+                    result.message = 'URL Invalid';
+                    updateTableRow(rowId, result);
+                    continue;
+                }
+
+                if (isSimulation) {
+                    // --- SIMULATION MODE ---
+                    await new Promise(r => setTimeout(r, 800)); // Fake delay
+                    result.short = `https://nlink.at/${Math.random().toString(36).substr(2, 6)}`;
+                    result.status = 'success'; // But logically it's fake
+                    result.message = 'Simulasi (Tidak Redirect)';
+                } else {
+                    // --- REAL API MODE ---
+                    try {
+                        const shortLink = await callApi(endpoint, apiKey, originalUrl);
+                        result.short = shortLink;
+                        result.status = 'success';
+                        result.message = 'Berhasil';
+                    } catch (error) {
+                        result.status = 'error';
+                        result.message = 'Gagal API';
+                        console.error(error);
+                    }
+                }
+
+                updateTableRow(rowId, result);
+                processedData.push(result);
+            }
+
+            loadingOverlay.style.display = 'none';
+            const successCount = processedData.filter(d => d.status === 'success').length;
+            document.getElementById('statusText').innerText = `Selesai: ${successCount}/${urls.length} Berhasil`;
+        }
+
+        // --- API Call (Generic) ---
+        async function callApi(endpoint, key, url) {
+            // Adjust body/headers based on common API structures
+            // Default structure assumes TinyURL style (POST with url & token)
+            
+            const options = {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${key}` 
+                },
+                body: JSON.stringify({ url: url, domain: "tinyurl.com" }) // Common payload
+            };
+
+            // Special handling for specific APIs if needed in future
+            // For now, we try a generic POST request
+            
+            const response = await fetch(endpoint, options);
+            
+            if (!response.ok) {
+                throw new Error(`API Error: ${response.status}`);
+            }
+
+            const data = await response.json();
+            
+            // TinyURL returns { "data": { "tiny_url": "..." } }
+            // is.gd returns plain text
+            // bit.ly returns { "link": "..." }
+            
+            if (data.data && data.data.tiny_url) return data.data.tiny_url;
+            if (data.tiny_url) return data.tiny_url;
+            if (data.link) return data.link;
+            if (data.shorturl) return data.shorturl;
+            
+            // Fallback: if the response is just a string
+            if (typeof data === 'string') return data;
+
+            throw new Error("Format respon API tidak dikenali");
+        }
+
+        // --- Table UI Helpers ---
+        function addTableRow(id, index, original, status, message) {
+            const tr = document.createElement('tr');
+            tr.id = id;
+            tr.innerHTML = `
+                <td>${index}</td>
+                <td><a href="${original}" target="_blank" class="link-cell" title="${original}">${original}</a></td>
+                <td id="${id}-short">...</td>
+                <td><span class="status-badge ${status}">${message}</span></td>
+                <td class="action-cell"></td>
+            `;
+            resultsBody.appendChild(tr);
+        }
+
+        function updateTableRow(id, data) {
+            const row = document.getElementById(id);
+            if (!row) return;
+
+            const shortCell = document.getElementById(`${id}-short`);
+            const actionCell = row.querySelector('.action-cell');
+            
+            // Update Status
+            const statusHtml = `<span class="status-badge ${data.status}">${data.status === 'success' ? 'OK' : data.message}</span>`;
+            row.cells[3].innerHTML = statusHtml;
+
+            // Update Short Link
+            if (data.status === 'success') {
+                shortCell.innerHTML = `<a href="${data.short}" target="_blank" class="link-cell short">${data.short}</a>`;
+                // Add Copy Button
+                actionCell.innerHTML = `
+                    <button class="icon-btn" onclick="copyText('${data.short}')" title="Copy">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
+                    </button>
+                `;
+            } else {
+                shortCell.innerHTML = `<span style="color:var(--error)">-</span>`;
+                actionCell.innerHTML = ``;
             }
         }
 
-        /**
-         * Menghapus isi textarea
-         */
-        function clearInput() {
-            urlInput.value = '';
-            urlInput.focus();
-        }
-
-        /**
-         * Menyalin teks ke clipboard
-         */
-        async function copyToClipboard(text) {
+        // --- Utilities ---
+        function isValidUrl(string) {
             try {
-                await navigator.clipboard.writeText(text);
-                showToast("Link berhasil disalin!", "success");
-            } catch (err) {
-                // Fallback jika API clipboard tidak support
-                const textArea = document.createElement("textarea");
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                document.execCommand("copy");
-                document.body.removeChild(textArea);
-                showToast("Link berhasil disalin!", "success");
+                new URL(string);
+                return true;
+            } catch (_) {
+                return false;
             }
         }
 
-        /**
-         * Menyalin semua link yang sukses
-         */
-        function copyAllResults() {
-            const successfulLinks = linkData
-                .filter(item => item.status === 'success')
-                .map(item => item.short)
-                .join('\n');
-
-            if (!successfulLinks) {
-                showToast("Tidak ada link valid untuk disalin.", "error");
-                return;
-            }
-
-            copyToClipboard(successfulLinks);
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Disalin: " + text, "success");
+            });
         }
 
-        /**
-         * Menampilkan pesan Toast (Notification)
-         */
-        function showToast(message, type = "info") {
+        function exportResults() {
+            if (processedData.length === 0) return;
+            let csvContent = "data:text/csv;charset=utf-8,No,Original,Short,Status\n";
+            processedData.forEach(row => {
+                csvContent += `${row.id},"${row.original}","${row.short}",${row.status}\n`;
+            });
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "shortened_links.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function showToast(msg, type = "info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
+            if(type === 'error') toast.style.borderLeft = "4px solid #ef4444";
+            if(type === 'success') toast.style.borderLeft = "4px solid #10b981";
+            if(type === 'warning') toast.style.borderLeft = "4px solid #f59e0b";
             
-            // Icon based on type
-            let icon = '';
-            if (type === 'success') {
-                icon = `<svg width="20" height="20" fill="none" stroke="#10b981" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>`;
-                toast.style.borderLeft = "4px solid #10b981";
-            } else if (type === 'error') {
-                icon = `<svg width="20" height="20" fill="none" stroke="#ef4444" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
-                toast.style.borderLeft = "4px solid #ef4444";
-            }
-
-            toast.innerHTML = `${icon} <span>${message}</span>`;
+            toast.innerText = msg;
             container.appendChild(toast);
-
-            // Remove after 3 seconds
             setTimeout(() => {
                 toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100%)';
-                toast.style.transition = 'all 0.3s ease-out';
-                setTimeout(() => {
-                    if (container.contains(toast)) {
-                        container.removeChild(toast);
-                    }
-                }, 300);
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
     </script>
