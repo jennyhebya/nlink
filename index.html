@@ -3,132 +3,241 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulk Shortener Pro - Copy All Feature</title>
+    <title>NexLink - Bulk Shortener Pro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --bg-color: #f8fafc;
-            --card-bg: #ffffff;
+            /* Palette Warna Modern (Cyber/Tech Clean) */
+            --primary: #6366f1; /* Indigo */
+            --primary-dark: #4f46e5;
+            --accent: #ec4899; /* Pink accent */
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            
+            /* Background & Surface */
+            --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(255, 255, 255, 0.6);
+            --input-bg: #f8fafc;
+            
+            /* Text */
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --error: #ef4444;
-            --warning: #f59e0b;
+            
+            /* Effects */
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 10px 15px -3px rgba(99, 102, 241, 0.15), 0 4px 6px -2px rgba(99, 102, 241, 0.05);
+            --shadow-hover: 0 20px 25px -5px rgba(99, 102, 241, 0.2), 0 10px 10px -5px rgba(99, 102, 241, 0.1);
+            --radius: 16px;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Roboto, sans-serif; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
 
         body {
-            background-color: var(--bg-color);
+            background: var(--bg-gradient);
             color: var(--text-main);
-            padding: 20px;
             min-height: 100vh;
             display: flex;
             justify-content: center;
+            padding: 40px 20px;
+            /* Subtle background pattern */
+            background-image: radial-gradient(#6366f1 0.5px, transparent 0.5px), radial-gradient(#6366f1 0.5px, transparent 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
         }
 
         .container {
             width: 100%;
-            max-width: 950px;
+            max-width: 1000px;
             background: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-            padding: 30px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: var(--radius);
+            border: 1px solid var(--card-border);
+            box-shadow: var(--shadow-lg);
+            padding: 40px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* Header */
-        header { margin-bottom: 25px; border-bottom: 1px solid var(--border); padding-bottom: 20px; }
-        h1 { font-size: 1.5rem; color: var(--text-main); margin-bottom: 5px; }
-        p.subtitle { color: var(--text-muted); font-size: 0.9rem; }
+        header { text-align: center; margin-bottom: 35px; }
+        .logo {
+            display: inline-flex; align-items: center; gap: 10px; 
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
+        p.subtitle { color: var(--text-muted); font-size: 1rem; }
 
-        /* API Config Section */
+        /* API Config (Accordion) */
         .api-config {
             background: #eff6ff;
             border: 1px solid #bfdbfe;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 25px;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            transition: all 0.3s ease;
         }
+        .api-config:hover { border-color: var(--primary); }
         .api-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .api-title { font-weight: 600; color: #1e40af; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; }
-        .api-content { display: none; margin-top: 15px; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .api-title { font-weight: 600; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
+        .api-content { display: none; margin-top: 20px; grid-template-columns: 1fr 1fr; gap: 20px; animation: slideDown 0.3s ease; }
         .api-content.active { display: grid; }
         
-        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; }
+        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
         .form-group input {
-            width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem;
+            width: 100%; padding: 12px 16px; border: 1px solid #e2e8f0; border-radius: 8px; 
+            font-size: 0.95rem; transition: 0.2s; background: white;
         }
-        .api-note { grid-column: span 2; font-size: 0.8rem; color: var(--text-muted); background: rgba(255,255,255,0.6); padding: 10px; border-radius: 4px; }
-
-        /* Input Section */
-        .input-section { margin-bottom: 25px; }
-        .label-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
-        .label-row label { font-weight: 600; font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         
-        textarea {
-            width: 100%; height: 160px; padding: 15px;
-            border: 2px solid var(--border); border-radius: 8px; resize: vertical;
-            font-family: monospace; font-size: 0.9rem;
-        }
-        textarea:focus { outline: none; border-color: var(--primary); }
+        .api-note { grid-column: span 2; font-size: 0.85rem; color: var(--text-muted); background: rgba(255,255,255,0.7); padding: 12px; border-radius: 6px; line-height: 1.5; }
 
-        /* Actions */
-        .actions { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; }
-        .btn {
-            padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: 600; font-size: 0.9rem;
-            transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px;
+        /* Main Input Section */
+        .input-wrapper { position: relative; margin-bottom: 30px; }
+        
+        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+        .label-row label { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
+        
+        /* Custom Dropdown */
+        .dropdown { position: relative; display: inline-block; }
+        .dropdown-btn {
+            background: white; border: 1px solid #e2e8f0; padding: 8px 16px; 
+            border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-main);
+            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
+            box-shadow: var(--shadow-sm);
         }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover { background-color: var(--primary-hover); }
-        .btn-secondary { background-color: white; border: 1px solid var(--border); color: var(--text-main); }
-        .btn-secondary:hover { background-color: var(--bg-color); }
-        .btn-success { background-color: var(--success); color: white; }
-        .btn-success:hover { background-color: #059669; }
+        .dropdown-btn:hover { border-color: var(--primary); color: var(--primary); }
+        
+        .dropdown-content {
+            display: none; position: absolute; right: 0; top: 110%; background: white;
+            min-width: 200px; box-shadow: var(--shadow-hover); border-radius: 10px;
+            border: 1px solid #f1f5f9; overflow: hidden; z-index: 20;
+            animation: fadeInMenu 0.2s ease;
+        }
+        .dropdown-content a {
+            color: var(--text-main); padding: 12px 16px; text-decoration: none; 
+            display: block; font-size: 0.9rem; font-weight: 500; transition: 0.1s;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .dropdown-content a:last-child { border-bottom: none; }
+        .dropdown-content a:hover { background: #f1f5f9; color: var(--primary); }
+        .dropdown:hover .dropdown-content { display: block; }
+
+        /* Raw Mode Toggle Card */
+        .mode-card {
+            background: linear-gradient(to right, #fff7ed, #fff); border: 1px solid #fed7aa;
+            padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px;
+        }
+        .mode-info h4 { font-size: 0.95rem; color: #9a3412; margin-bottom: 4px; }
+        .mode-info p { font-size: 0.8rem; color: #c2410c; }
+
+        .switch { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1; transition: .4s; border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+            background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        input:checked + .slider { background-color: var(--warning); }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        /* Textarea */
+        textarea {
+            width: 100%; height: 180px; padding: 16px; border: 2px solid #e2e8f0; border-radius: 12px; 
+            resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
+            background: var(--input-bg); transition: 0.3s; color: var(--text-main);
+        }
+        textarea:focus { outline: none; border-color: var(--primary); background: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.05); }
+
+        /* Action Buttons */
+        .actions { display: flex; gap: 16px; margin-top: 24px; }
+        .btn {
+            padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer; 
+            font-weight: 600; font-size: 0.95rem; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-primary { 
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
+            color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); flex: 1;
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); }
+        .btn-primary:active { transform: translateY(0); }
+        
+        .btn-secondary { background: white; border: 1px solid #cbd5e1; color: var(--text-muted); }
+        .btn-secondary:hover { background: #f8fafc; color: var(--text-main); border-color: var(--text-muted); }
 
         /* Results Table */
-        .results-section { display: none; border-top: 1px solid var(--border); padding-top: 25px; }
-        .results-header-bar {
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;
-            flex-wrap: wrap; gap: 10px;
+        .results-section { display: none; margin-top: 40px; animation: slideUp 0.5s ease; }
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .stats-pill {
+            background: white; border: 1px solid #e2e8f0; padding: 6px 12px; 
+            border-radius: 20px; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;
         }
-        .stats { font-size: 0.9rem; color: var(--text-muted); }
         
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { text-align: left; padding: 12px; background: #f1f5f9; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; font-weight: 700; }
-        td { padding: 12px; border-bottom: 1px solid var(--border); font-size: 0.9rem; vertical-align: middle; }
-        
-        .link-cell { max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); text-decoration: none; display: block; }
+        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; background: white; }
+        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        th { 
+            text-align: left; padding: 16px; background: #f8fafc; color: var(--text-muted); 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 1px solid #e2e8f0;
+        }
+        td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: var(--text-main); vertical-align: middle; }
+        tr:last-child td { border-bottom: none; }
+        tr:hover td { background: #fafbfc; }
+
+        .link-cell { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); text-decoration: none; display: block; }
         .link-cell.short { color: var(--primary); font-weight: 600; }
         .link-cell.short:hover { text-decoration: underline; }
-        
-        .status-badge { padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
-        .status-badge.success { background: #dcfce7; color: #166534; }
-        .status-badge.error { background: #fee2e2; color: #991b1b; }
-        .status-badge.processing { background: #e0f2fe; color: #075985; }
 
-        .icon-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 4px; transition: 0.2s; }
-        .icon-btn:hover { background: #f1f5f9; color: var(--primary); }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge.success { background: #dcfce7; color: #166534; }
+        .badge.error { background: #fee2e2; color: #991b1b; }
+        .badge.processing { background: #e0f2fe; color: #075985; }
 
-        /* Toast & Loading */
-        #toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-        .toast { background: #334155; color: white; padding: 12px 20px; border-radius: 6px; font-size: 0.9rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); animation: slideIn 0.3s ease; }
-        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-
-        .loading-overlay {
-            display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.8);
-            z-index: 999; align-items: center; justify-content: center; flex-direction: column;
+        .action-cell { text-align: right; }
+        .icon-btn { 
+            background: #f1f5f9; border: none; cursor: pointer; color: var(--text-muted); 
+            padding: 8px; border-radius: 8px; transition: 0.2s; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
         }
-        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .icon-btn:hover { background: var(--primary); color: white; transform: scale(1.1); }
+
+        /* Toast Notification */
+        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+        .toast { 
+            background: #1e293b; color: white; padding: 14px 24px; border-radius: 10px; 
+            font-size: 0.9rem; box-shadow: var(--shadow-hover); 
+            animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            display: flex; align-items: center; gap: 10px;
+        }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+        /* Loading Overlay */
+        .loading-overlay {
+            display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.6);
+            backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .spinner { 
+            width: 50px; height: 50px; border: 4px solid #e2e8f0; 
+            border-top: 4px solid var(--primary); border-radius: 50%; 
+            animation: spin 1s linear infinite; 
+        }
         @keyframes spin { 100% { transform: rotate(360deg); } }
-        
-        @media (max-width: 600px) {
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 25px; }
             .api-content { grid-template-columns: 1fr; }
-            .actions { flex-direction: column; gap: 10px; }
-            .btn { width: 100%; justify-content: center; }
-            .results-header-bar { flex-direction: column; align-items: stretch; }
+            .actions { flex-direction: column; }
+            .results-header { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
     </style>
 </head>
@@ -136,87 +245,116 @@
 
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <p style="margin-top: 15px; font-weight: 600;">Memproses link...</p>
+        <p style="margin-top: 20px; font-weight: 600; color: var(--text-main);">Processing Link...</p>
     </div>
 
     <div id="toast-container"></div>
 
     <div class="container">
         <header>
-            <h1>Bulk Shortener Pro</h1>
-            <p class="subtitle">Pemendek link massal dengan fitur Copy All dan API Support.</p>
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                <h1>NexLink Pro</h1>
+            </div>
+            <p class="subtitle">Bulk URL Shortening Solution with Smart Parameter Technology</p>
         </header>
 
-        <!-- Konfigurasi API -->
+        <!-- API Settings -->
         <section class="api-config">
             <div class="api-header" onclick="toggleApiConfig()">
                 <div class="api-title">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                    Pengaturan API (Penting untuk Redirect Asli)
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    Konfigurasi API
                 </div>
                 <span id="apiToggleIcon">▼</span>
             </div>
             <div class="api-content" id="apiContent">
                 <div class="form-group">
-                    <label>API Endpoint URL</label>
+                    <label>API Endpoint (Opsional)</label>
                     <input type="text" id="apiEndpoint" placeholder="https://api.tinyurl.com/create" value="">
-                    <small style="color:var(--text-muted)">Contoh TinyURL Gratis: https://api.tinyurl.com/create</small>
+                    <small style="color:var(--text-muted); display:block; margin-top:5px;">Leave blank for TinyURL Free (Public).</small>
                 </div>
                 <div class="form-group">
-                    <label>API Key (Token)</label>
-                    <input type="password" id="apiKey" placeholder="Masukkan API Key Anda disini">
+                    <label>API Key (Opsional)</label>
+                    <input type="password" id="apiKey" placeholder="Isi hanya jika pakai Premium">
                 </div>
                 <div class="api-note">
-                    <strong>Info:</strong> Jika kolom ini kosong, alat akan berjalan dalam <em>Mode Simulasi</em>. 
-                    Untuk membuat link berfungsi, gunakan API Key layanan pemendek link (contoh: TinyURL).
+                    <strong>Tips:</strong> Without API Key, the system uses <em>TinyURL Public API</em>. Fast and free. 
+                    If using mode <strong>Raw + Params</strong>, this API setting is ignored.
                 </div>
             </div>
         </section>
 
+        <!-- Main Input -->
         <section class="input-section">
-            <div class="label-row">
-                <label for="urlInput">Daftar Link (Satu per baris)</label>
-                <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.8rem;" onclick="loadExample()">Contoh Link</button>
+            <div class="input-wrapper">
+                <div class="label-row">
+                    <label>Create URL</label>
+                    
+                    <div class="dropdown">
+                        <button class="dropdown-btn">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                            Pilih Template
+                        </button>
+                        <div class="dropdown-content">
+                            <a onclick="loadTemplate('node')">📂 Template Node</a>
+                            <a onclick="loadTemplate('example')">🌐 Examples of General Links</a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mode Toggle -->
+                <div class="mode-card">
+                    <label class="switch">
+                        <input type="checkbox" id="rawModeToggle" onchange="toggleRawMode()">
+                        <span class="slider"></span>
+                    </label>
+                    <div class="mode-info">
+                        <h4>Mode Raw + Random Params</h4>
+                        <p id="modeDesc">Turn off: Links are shortened (TinyURL). Turn on: Original link + random code (?m=xyz).</p>
+                    </div>
+                </div>
+
+                <textarea id="urlInput" placeholder="Paste your link list here...&#10;One link per line"></textarea>
             </div>
-            <textarea id="urlInput" placeholder="https://shopee.co.id/product-promo&#10;https://tokopedia.com/gadget-sale&#10;https://youtube.com/watch?v=demo"></textarea>
             
             <div class="actions">
                 <button class="btn btn-secondary" onclick="document.getElementById('urlInput').value=''">
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    Reset
+                    Reset Input
                 </button>
                 <button class="btn btn-primary" onclick="startProcessing()">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path></svg>
-                    Proses Sekarang
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    Current Process
                 </button>
             </div>
         </section>
 
+        <!-- Results -->
         <section class="results-section" id="resultsSection">
-            <!-- Header Bar dengan Tombol Copy All -->
-            <div class="results-header-bar">
-                <div class="stats" id="statusText">Status: Siap</div>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-success" onclick="copyAllShortLinks()">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                        Copy Semua Link Pendek
+            <div class="results-header">
+                <div class="stats-pill" id="statusText">Status: Ready</div>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="exportResults()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                        CSV
                     </button>
-                    <button class="btn btn-secondary" onclick="exportResults()">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        Export CSV
+                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="copyAllShortLinks()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                        Copy All
                     </button>
                 </div>
             </div>
             
-            <div class="table-responsive">
+            <div class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th style="width: 5%">#</th>
-                            <th style="width: 40%">Link Asli (Original)</th>
-                            <th style="width: 40%">Link Pendek (Short)</th>
-                            <th style="width: 15%">Status</th>
-                            <th>Aksi</th>
+                            <th width="5%">#</th>
+                            <th width="35%">Original Link</th>
+                            <th width="35%">The final result</th>
+                            <th width="15%">Status</th>
+                            <th width="10%">Action</th>
                         </tr>
                     </thead>
                     <tbody id="resultsBody"></tbody>
@@ -236,6 +374,7 @@
         const urlInput = document.getElementById('urlInput');
         const apiEndpointInput = document.getElementById('apiEndpoint');
         const apiKeyInput = document.getElementById('apiKey');
+        const rawModeToggle = document.getElementById('rawModeToggle');
 
         // --- Config Logic ---
         function toggleApiConfig() {
@@ -245,79 +384,93 @@
             icon.textContent = content.classList.contains('active') ? '▲' : '▼';
         }
 
-        function loadExample() {
-            urlInput.value = "https://shopee.co.id/product-promo\nhttps://tokopedia.com/gadget-sale\nhttps://youtube.com/watch?v=demo";
+        function toggleRawMode() {
+            const desc = document.getElementById('modeDesc');
+            if(rawModeToggle.checked) {
+                desc.textContent = "Active Mode: Links are not shortened, only unique parameters are added at the end.";
+                showToast("Raw Mode + Active Params", "warning");
+            } else {
+                desc.textContent = "Active Mode: Links will be shortened using TinyURL (Free/Premium).";
+                showToast("URL Shortening Mode Active", "info");
+            }
+        }
+
+        // --- Template Loader ---
+        function loadTemplate(type) {
+            let text = "";
+            if (type === 'node') {
+                text = "https://ho.link/Project\nhttps://ho.link/christinasanchez\nhttps://ho.link/russellgonzalez\nhttps://ho.link/kathrynbaker";
+                showToast("Node Template loaded.", "success");
+            } else if (type === 'example') {
+                text = "https://www.tokopedia.com/\nhttps://shopee.co.id/\nhttps://www.forbes.com/\nhttps://www.tiktok.com/\nhttps://www.jne.co.id/";
+                showToast("Example Link loaded.", "success");
+            }
+            urlInput.value = text;
+        }
+
+        // --- Helper: Random String ---
+        function generateRandomString(length = 10) {
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return result;
         }
 
         // --- Main Process Function ---
         async function startProcessing() {
             const urls = urlInput.value.split('\n').map(u => u.trim()).filter(u => u);
+            const useRawMode = rawModeToggle.checked;
             const endpoint = apiEndpointInput.value.trim();
             const apiKey = apiKeyInput.value.trim();
 
             if (urls.length === 0) {
-                showToast("Masukkan link terlebih dahulu!", "error");
+                showToast("Input is still empty!", "error");
                 return;
-            }
-
-            // Check mode
-            const isSimulation = !endpoint || !apiKey;
-            
-            if (isSimulation) {
-                showToast("Mode Simulasi Aktif (API Kosong). Link TIDAK akan redirect asli.", "warning");
-            } else {
-                showToast("Menghubungi API... Mohon tunggu.", "info");
             }
 
             loadingOverlay.style.display = 'flex';
             resultsSection.style.display = 'block';
-            resultsBody.innerHTML = ''; // Clear previous
+            resultsBody.innerHTML = '';
             processedData = [];
-            document.getElementById('statusText').innerText = `Status: Memproses ${urls.length} link...`;
+            
+            let modeText = useRawMode ? "Raw + Params" : "Shortener";
+            document.getElementById('statusText').innerText = `Memproses ${urls.length} link (${modeText})...`;
 
-            // Process sequentially
             for (let i = 0; i < urls.length; i++) {
                 const originalUrl = urls[i];
-                
-                // Add placeholder row
                 const rowId = `row-${i}`;
-                addTableRow(rowId, i+1, originalUrl, 'processing', '...');
+                addTableRow(rowId, i+1, originalUrl);
                 
-                let result = {
-                    id: i+1,
-                    original: originalUrl,
-                    short: '-',
-                    status: 'pending'
-                };
+                let result = { id: i+1, original: originalUrl, short: '-', status: 'pending' };
 
                 if (!isValidUrl(originalUrl)) {
-                    result.status = 'error';
-                    result.message = 'URL Invalid';
-                    updateTableRow(rowId, result);
+                    updateTableRow(rowId, 'error', 'URL Not Valid', '-');
                     continue;
                 }
 
-                if (isSimulation) {
-                    // --- SIMULATION MODE ---
-                    await new Promise(r => setTimeout(r, 600)); 
-                    result.short = `https://nlink.at/${Math.random().toString(36).substr(2, 6)}`;
-                    result.status = 'success';
-                    result.message = 'Simulasi';
-                } else {
-                    // --- REAL API MODE ---
-                    try {
-                        const shortLink = await callApi(endpoint, apiKey, originalUrl);
-                        result.short = shortLink;
-                        result.status = 'success';
-                        result.message = 'Sukses';
-                    } catch (error) {
-                        result.status = 'error';
-                        result.message = 'Gagal API';
-                        console.error(error);
+                try {
+                    let finalUrl = '';
+                    if (useRawMode) {
+                        await new Promise(r => setTimeout(r, 100)); // Slight delay
+                        const separator = originalUrl.includes('?') ? '&' : '?';
+                        finalUrl = `${originalUrl}${separator}m=${generateRandomString(10)}`;
+                        updateTableRow(rowId, 'success', 'Raw + Params', finalUrl);
+                    } else {
+                        if (apiKey && endpoint) {
+                            finalUrl = await callApi(endpoint, apiKey, originalUrl);
+                            updateTableRow(rowId, 'success', 'API Success', finalUrl);
+                        } else {
+                            finalUrl = await callTinyUrlFree(originalUrl);
+                            updateTableRow(rowId, 'success', 'TinyURL Free', finalUrl);
+                        }
                     }
+                    result.short = finalUrl;
+                    result.status = 'success';
+                } catch (error) {
+                    updateTableRow(rowId, 'error', 'Gagal', '-');
                 }
-
-                updateTableRow(rowId, result);
                 processedData.push(result);
             }
 
@@ -326,142 +479,111 @@
             document.getElementById('statusText').innerText = `Selesai: ${successCount}/${urls.length} Berhasil`;
         }
 
-        // --- API Call (Generic) ---
-        async function callApi(endpoint, key, url) {
-            // Assumes TinyURL structure by default
-            const options = {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${key}` 
-                },
-                body: JSON.stringify({ url: url, domain: "tinyurl.com" })
-            };
-
-            const response = await fetch(endpoint, options);
-            
-            if (!response.ok) {
-                throw new Error(`API Error: ${response.status}`);
-            }
-
-            const data = await response.json();
-            
-            // Parsing common responses
-            if (data.data && data.data.tiny_url) return data.data.tiny_url;
-            if (data.tiny_url) return data.data ? data.data.tiny_url : data.tiny_url;
-            if (data.link) return data.link;
-            if (typeof data === 'string') return data;
-
-            throw new Error("Format respon API tidak dikenali");
+        // --- TinyURL Free ---
+        async function callTinyUrlFree(url) {
+            const requestUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`;
+            const response = await fetch(requestUrl);
+            const text = await response.text();
+            if (text.includes("Error")) throw new Error(text);
+            return text;
         }
 
-        // --- Table UI Helpers ---
-        function addTableRow(id, index, original, status, message) {
+        // --- Generic API ---
+        async function callApi(endpoint, key, url) {
+            const options = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+                body: JSON.stringify({ url: url, domain: "tinyurl.com" })
+            };
+            const response = await fetch(endpoint, options);
+            if (!response.ok) throw new Error('API Error');
+            const data = await response.json();
+            return data.data.tiny_url || data.tiny_url || data.link;
+        }
+
+        // --- Table UI ---
+        function addTableRow(id, index, original) {
             const tr = document.createElement('tr');
             tr.id = id;
             tr.innerHTML = `
                 <td>${index}</td>
                 <td><a href="${original}" target="_blank" class="link-cell" title="${original}">${original}</a></td>
-                <td id="${id}-short">...</td>
-                <td><span class="status-badge ${status}">${message}</span></td>
+                <td id="${id}-res"><span class="badge processing">Process...</span></td>
+                <td id="${id}-status">Processing</td>
                 <td class="action-cell"></td>
             `;
             resultsBody.appendChild(tr);
         }
 
-        function updateTableRow(id, data) {
+        function updateTableRow(id, status, message, url) {
             const row = document.getElementById(id);
-            if (!row) return;
-
-            const shortCell = document.getElementById(`${id}-short`);
-            const actionCell = row.querySelector('.action-cell');
+            if(!row) return;
             
-            // Update Status
-            const statusHtml = `<span class="status-badge ${data.status}">${data.message}</span>`;
-            row.cells[3].innerHTML = statusHtml;
+            const resCell = document.getElementById(`${id}-res`);
+            const statusCell = document.getElementById(`${id}-status`);
+            const actionCell = row.querySelector('.action-cell');
 
-            // Update Short Link
-            if (data.status === 'success') {
-                shortCell.innerHTML = `<a href="${data.short}" target="_blank" class="link-cell short">${data.short}</a>`;
-                // Add Copy Button
+            statusCell.innerHTML = `<span class="badge ${status}">${message}</span>`;
+
+            if (status === 'success') {
+                resCell.innerHTML = `<a href="${url}" target="_blank" class="link-cell short">${url}</a>`;
                 actionCell.innerHTML = `
-                    <button class="icon-btn" onclick="copyText('${data.short}')" title="Copy">
-                        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"></path></svg>
-                    </button>
-                `;
+                    <button class="icon-btn" onclick="copyText('${url}')" title="Copy">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    </button>`;
             } else {
-                shortCell.innerHTML = `<span style="color:var(--error)">-</span>`;
-                actionCell.innerHTML = ``;
+                resCell.innerText = '-';
+                actionCell.innerHTML = '';
             }
         }
 
-        // --- NEW FEATURE: Copy All Short Links ---
+        // --- Copy All ---
         function copyAllShortLinks() {
-            // Filter hanya yang success
-            const shortLinks = processedData
-                .filter(item => item.status === 'success')
-                .map(item => item.short);
-
-            if (shortLinks.length === 0) {
-                showToast("Tidak ada link pendek valid untuk disalin.", "error");
-                return;
-            }
-
-            const allLinksText = shortLinks.join('\n');
+            const results = processedData.filter(i => i.status === 'success').map(i => i.short);
+            if (results.length === 0) return showToast("No valid data.", "error");
             
-            navigator.clipboard.writeText(allLinksText).then(() => {
-                showToast(`${shortLinks.length} link pendek berhasil disalin!`, "success");
-            }).catch(err => {
-                showToast("Gagal menyalin ke clipboard.", "error");
-                console.error(err);
+            navigator.clipboard.writeText(results.join('\n')).then(() => {
+                showToast(`${results.length} Link Succesfull Coppied!`, "Success");
             });
+        }
+
+        function copyText(text) {
+            navigator.clipboard.writeText(text).then(() => showToast("Coppied!", "Success"));
         }
 
         // --- Utilities ---
         function isValidUrl(string) {
-            try {
-                new URL(string);
-                return true;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => {
-                showToast("Disalin: " + text, "success");
-            });
+            try { new URL(string); return true; } catch (_) { return false; }
         }
 
         function exportResults() {
             if (processedData.length === 0) return;
-            let csvContent = "data:text/csv;charset=utf-8,No,Original,Short,Status\n";
-            processedData.forEach(row => {
-                csvContent += `${row.id},"${row.original}","${row.short}",${row.status}\n`;
-            });
-            const encodedUri = encodeURI(csvContent);
+            let csv = "data:text/csv;charset=utf-8,No,Original,Result,Status\n";
+            processedData.forEach(r => csv += `${r.id},"${r.original}","${r.short}",${r.status}\n`);
             const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "shortened_links.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            link.href = encodeURI(csv); link.download = "nexlink_results.csv";
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
         }
 
         function showToast(msg, type = "info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            if(type === 'error') toast.style.borderLeft = "4px solid #ef4444";
-            if(type === 'success') toast.style.borderLeft = "4px solid #10b981";
-            if(type === 'warning') toast.style.borderLeft = "4px solid #f59e0b";
             
-            toast.innerText = msg;
+            // Icon based on type
+            let icon = '';
+            if(type === 'success') icon = '✅';
+            if(type === 'error') icon = '❌';
+            if(type === 'warning') icon = '⚠️';
+            if(type === 'info') icon = 'ℹ️';
+
+            toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
+            if(type === 'error') toast.style.borderLeft = "4px solid var(--danger)";
+            else if(type === 'success') toast.style.borderLeft = "4px solid var(--success)";
+            else toast.style.borderLeft = "4px solid var(--primary)";
+
             container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
     </script>
 </body>
