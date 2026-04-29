@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexLink - Bulk Shortener Pro</title>
+    <title>NexLink - Cloak & Shorten Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -17,7 +17,7 @@
             
             /* Background & Surface */
             --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
-            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-bg: rgba(255, 255, 255, 0.9);
             --card-border: rgba(255, 255, 255, 0.6);
             --input-bg: #f8fafc;
             
@@ -41,7 +41,6 @@
             display: flex;
             justify-content: center;
             padding: 40px 20px;
-            /* Subtle background pattern */
             background-image: radial-gradient(#6366f1 0.5px, transparent 0.5px), radial-gradient(#6366f1 0.5px, transparent 0.5px);
             background-size: 20px 20px;
             background-position: 0 0, 10px 10px;
@@ -49,7 +48,7 @@
 
         .container {
             width: 100%;
-            max-width: 1000px;
+            max-width: 1100px;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
@@ -75,6 +74,15 @@
         }
         h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
         p.subtitle { color: var(--text-muted); font-size: 1rem; }
+
+        /* Features Badge */
+        .badge-group {
+            display: flex; justify-content: center; gap: 10px; margin-top: 15px;
+        }
+        .feat-badge {
+            font-size: 0.75rem; background: #e0e7ff; color: var(--primary-dark);
+            padding: 4px 12px; border-radius: 20px; font-weight: 600; border: 1px solid #c7d2fe;
+        }
 
         /* API Config (Accordion) */
         .api-config {
@@ -118,7 +126,7 @@
         
         .dropdown-content {
             display: none; position: absolute; right: 0; top: 110%; background: white;
-            min-width: 200px; box-shadow: var(--shadow-hover); border-radius: 10px;
+            min-width: 220px; box-shadow: var(--shadow-hover); border-radius: 10px;
             border: 1px solid #f1f5f9; overflow: hidden; z-index: 20;
             animation: fadeInMenu 0.2s ease;
         }
@@ -131,26 +139,12 @@
         .dropdown-content a:hover { background: #f1f5f9; color: var(--primary); }
         .dropdown:hover .dropdown-content { display: block; }
 
-        /* Raw Mode Toggle Card */
-        .mode-card {
-            background: linear-gradient(to right, #fff7ed, #fff); border: 1px solid #fed7aa;
-            padding: 16px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 16px;
+        /* Info Box */
+        .info-box {
+            background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534;
+            padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;
+            display: flex; gap: 10px; align-items: center;
         }
-        .mode-info h4 { font-size: 0.95rem; color: #9a3412; margin-bottom: 4px; }
-        .mode-info p { font-size: 0.8rem; color: #c2410c; }
-
-        .switch { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #cbd5e1; transition: .4s; border-radius: 34px;
-        }
-        .slider:before {
-            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
-            background-color: white; transition: .4s; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        input:checked + .slider { background-color: var(--warning); }
-        input:checked + .slider:before { transform: translateX(22px); }
 
         /* Textarea */
         textarea {
@@ -185,16 +179,16 @@
         }
         
         .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid #e2e8f0; background: white; }
-        table { width: 100%; border-collapse: collapse; min-width: 700px; }
+        table { width: 100%; border-collapse: collapse; min-width: 800px; }
         th { 
             text-align: left; padding: 16px; background: #f8fafc; color: var(--text-muted); 
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 1px solid #e2e8f0;
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 2px solid #e2e8f0;
         }
         td { padding: 16px; border-bottom: 1px solid #f1f5f9; font-size: 0.9rem; color: var(--text-main); vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: #fafbfc; }
 
-        .link-cell { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); text-decoration: none; display: block; }
+        .link-cell { max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); text-decoration: none; display: block; }
         .link-cell.short { color: var(--primary); font-weight: 600; }
         .link-cell.short:hover { text-decoration: underline; }
 
@@ -246,6 +240,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
         <p style="margin-top: 20px; font-weight: 600; color: var(--text-main);">Processing Link...</p>
+        <p style="font-size: 0.85rem; color: var(--text-muted);">Injecting Params & Cloaking...</p>
     </div>
 
     <div id="toast-container"></div>
@@ -256,7 +251,12 @@
                 <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
                 <h1>NexLink Pro</h1>
             </div>
-            <p class="subtitle">Bulk URL Shortening Solution with Smart Parameter Technology</p>
+            <p class="subtitle">Bulk URL Shortener with Auto-Params & FB Cloaking</p>
+            <div class="badge-group">
+                <span class="feat-badge">Auto Unique Params</span>
+                <span class="feat-badge">FB Cloak Force</span>
+                <span class="feat-badge">Clean UI</span>
+            </div>
         </header>
 
         <!-- API Settings -->
@@ -272,24 +272,34 @@
                 <div class="form-group">
                     <label>API Endpoint (Opsional)</label>
                     <input type="text" id="apiEndpoint" placeholder="https://api.tinyurl.com/create" value="">
-                    <small style="color:var(--text-muted); display:block; margin-top:5px;">Leave blank for TinyURL Free (Public).</small>
+                    <small style="color:var(--text-muted); display:block; margin-top:5px;">Default: TinyURL Public API (Gratis).</small>
                 </div>
                 <div class="form-group">
                     <label>API Key (Opsional)</label>
-                    <input type="password" id="apiKey" placeholder="Isi hanya jika pakai Premium">
+                    <input type="password" id="apiKey" placeholder="Isi jika punya akun Premium">
                 </div>
                 <div class="api-note">
-                    <strong>Tips:</strong> Without API Key, the system uses <em>TinyURL Public API</em>. Fast and free. 
-                    If using mode <strong>Raw + Params</strong>, this API setting is ignored.
+                    <strong>Info:</strong> Sistem ini menggunakan TinyURL (Free/Premium). Fitur <strong>Auto-Params</strong> akan menambahkan kode unik otomatis agar shortlink selalu unik. Fitur <strong>FB Cloaking</strong> otomatis membungkus hasil akhir.
                 </div>
             </div>
         </section>
 
         <!-- Main Input -->
         <section class="input-section">
+            <div class="info-box">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div>
+                    <strong>Proses Otomatis:</strong> 
+                    1. Input URL &rarr; 
+                    2. Tambah Parameter Unik (?u=xyz) &rarr; 
+                    3. Shorten (TinyURL) &rarr; 
+                    4. Wrap dengan FB Debug.
+                </div>
+            </div>
+
             <div class="input-wrapper">
                 <div class="label-row">
-                    <label>Create URL</label>
+                    <label>Input Links</label>
                     
                     <div class="dropdown">
                         <button class="dropdown-btn">
@@ -297,21 +307,9 @@
                             Pilih Template
                         </button>
                         <div class="dropdown-content">
-                            <a onclick="loadTemplate('node')">📂 Template Node</a>
+                            <a onclick="loadTemplate('node')">📂 Template Node (Update)</a>
                             <a onclick="loadTemplate('example')">🌐 Examples of General Links</a>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Mode Toggle -->
-                <div class="mode-card">
-                    <label class="switch">
-                        <input type="checkbox" id="rawModeToggle" onchange="toggleRawMode()">
-                        <span class="slider"></span>
-                    </label>
-                    <div class="mode-info">
-                        <h4>Mode Raw + Random Params</h4>
-                        <p id="modeDesc">Turn off: Links are shortened (TinyURL). Turn on: Original link + random code (?m=xyz).</p>
                     </div>
                 </div>
 
@@ -325,7 +323,7 @@
                 </button>
                 <button class="btn btn-primary" onclick="startProcessing()">
                     <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    Current Process
+                    Process & Cloak
                 </button>
             </div>
         </section>
@@ -341,7 +339,7 @@
                     </button>
                     <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="copyAllShortLinks()">
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                        Copy All
+                        Copy Cloaked Links
                     </button>
                 </div>
             </div>
@@ -351,8 +349,8 @@
                     <thead>
                         <tr>
                             <th width="5%">#</th>
-                            <th width="35%">Original Link</th>
-                            <th width="35%">The final result</th>
+                            <th width="30%">Original Link</th>
+                            <th width="40%">Final Result (Cloaked)</th>
                             <th width="15%">Status</th>
                             <th width="10%">Action</th>
                         </tr>
@@ -374,7 +372,6 @@
         const urlInput = document.getElementById('urlInput');
         const apiEndpointInput = document.getElementById('apiEndpoint');
         const apiKeyInput = document.getElementById('apiKey');
-        const rawModeToggle = document.getElementById('rawModeToggle');
 
         // --- Config Logic ---
         function toggleApiConfig() {
@@ -384,23 +381,19 @@
             icon.textContent = content.classList.contains('active') ? '▲' : '▼';
         }
 
-        function toggleRawMode() {
-            const desc = document.getElementById('modeDesc');
-            if(rawModeToggle.checked) {
-                desc.textContent = "Active Mode: Links are not shortened, only unique parameters are added at the end.";
-                showToast("Raw Mode + Active Params", "warning");
-            } else {
-                desc.textContent = "Active Mode: Links will be shortened using TinyURL (Free/Premium).";
-                showToast("URL Shortening Mode Active", "info");
-            }
-        }
-
-        // --- Template Loader ---
+        // --- Template Loader (Updated) ---
         function loadTemplate(type) {
             let text = "";
             if (type === 'node') {
-                text = "https://ho.link/Project\nhttps://ho.link/christinasanchez\nhttps://ho.link/russellgonzalez\nhttps://ho.link/kathrynbaker";
-                showToast("Node Template loaded.", "success");
+                // Updated Template Node Links
+                text = `https://ho.link/gregoryadams78053
+https://ho.link/ernest_gonzalez
+https://ho.link/purpleheart245
+https://ho.link/prithviliena
+https://ho.link/Alena_richardson
+https://ho.link/jasejessie
+https://ho.link/kellymckinney18`;
+                showToast("Template Node loaded.", "success");
             } else if (type === 'example') {
                 text = "https://www.tokopedia.com/\nhttps://shopee.co.id/\nhttps://www.forbes.com/\nhttps://www.tiktok.com/\nhttps://www.jne.co.id/";
                 showToast("Example Link loaded.", "success");
@@ -409,7 +402,7 @@
         }
 
         // --- Helper: Random String ---
-        function generateRandomString(length = 10) {
+        function generateRandomString(length = 8) {
             const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
             let result = '';
             for (let i = 0; i < length; i++) {
@@ -418,10 +411,17 @@
             return result;
         }
 
+        // --- Helper: FB Cloaking ---
+        function applyFBCloak(url) {
+            // Membungkus URL dengan Facebook Debugger
+            // Perlu encodeURIComponent agar parameter di dalam URL tidak merusak struktur FB l.php
+            const encodedUrl = encodeURIComponent(url);
+            return `https://web.facebook.com/l.php?u=${encodedUrl}`;
+        }
+
         // --- Main Process Function ---
         async function startProcessing() {
             const urls = urlInput.value.split('\n').map(u => u.trim()).filter(u => u);
-            const useRawMode = rawModeToggle.checked;
             const endpoint = apiEndpointInput.value.trim();
             const apiKey = apiKeyInput.value.trim();
 
@@ -435,15 +435,17 @@
             resultsBody.innerHTML = '';
             processedData = [];
             
-            let modeText = useRawMode ? "Raw + Params" : "Shortener";
-            document.getElementById('statusText').innerText = `Memproses ${urls.length} link (${modeText})...`;
+            document.getElementById('statusText').innerText = `Processing ${urls.length} links (Adding Params & Cloaking)...`;
 
+            // Delay loop sedikit agar tidak freeze browser jika list panjang
             for (let i = 0; i < urls.length; i++) {
                 const originalUrl = urls[i];
                 const rowId = `row-${i}`;
+                
+                // Tampilkan row awal
                 addTableRow(rowId, i+1, originalUrl);
                 
-                let result = { id: i+1, original: originalUrl, short: '-', status: 'pending' };
+                let result = { id: i+1, original: originalUrl, short: '-', final: '-', status: 'pending' };
 
                 if (!isValidUrl(originalUrl)) {
                     updateTableRow(rowId, 'error', 'URL Not Valid', '-');
@@ -451,32 +453,47 @@
                 }
 
                 try {
-                    let finalUrl = '';
-                    if (useRawMode) {
-                        await new Promise(r => setTimeout(r, 100)); // Slight delay
-                        const separator = originalUrl.includes('?') ? '&' : '?';
-                        finalUrl = `${originalUrl}${separator}m=${generateRandomString(10)}`;
-                        updateTableRow(rowId, 'success', 'Raw + Params', finalUrl);
+                    // STEP 1: Tambah Parameter Unik ke URL Asli
+                    // Jika URL sudah punya parameter (?), pakai &, jika belum pakai ?
+                    const separator = originalUrl.includes('?') ? '&' : '?';
+                    const randomParam = generateRandomString(8); // Generate kode unik 8 karakter
+                    const urlWithParam = `${originalUrl}${separator}u=${randomParam}`;
+
+                    // STEP 2: Shorten URL (yang sudah ada parameternya)
+                    let shortUrl = "";
+                    
+                    if (apiKey && endpoint) {
+                        shortUrl = await callApi(endpoint, apiKey, urlWithParam);
                     } else {
-                        if (apiKey && endpoint) {
-                            finalUrl = await callApi(endpoint, apiKey, originalUrl);
-                            updateTableRow(rowId, 'success', 'API Success', finalUrl);
-                        } else {
-                            finalUrl = await callTinyUrlFree(originalUrl);
-                            updateTableRow(rowId, 'success', 'TinyURL Free', finalUrl);
-                        }
+                        // Default TinyURL Free API
+                        shortUrl = await callTinyUrlFree(urlWithParam);
                     }
-                    result.short = finalUrl;
+
+                    // STEP 3: Wrap dengan FB Cloak
+                    const finalCloakedUrl = applyFBCloak(shortUrl);
+
+                    // Update Table dengan hasil akhir
+                    updateTableRow(rowId, 'success', 'Cloaked', finalCloakedUrl);
+
+                    result.short = shortUrl; // Simpan short url asli (tanpa fb) jika butuh nanti
+                    result.final = finalCloakedUrl; // Hasil akhir
                     result.status = 'success';
+
                 } catch (error) {
+                    console.error(error);
                     updateTableRow(rowId, 'error', 'Gagal', '-');
                 }
+                
                 processedData.push(result);
+                
+                // Kecilkan delay antar proses agar tidak kena rate limit terlalu cepat
+                await new Promise(r => setTimeout(r, 500)); 
             }
 
             loadingOverlay.style.display = 'none';
             const successCount = processedData.filter(d => d.status === 'success').length;
-            document.getElementById('statusText').innerText = `Selesai: ${successCount}/${urls.length} Berhasil`;
+            document.getElementById('statusText').innerText = `Selesai: ${successCount}/${urls.length} Berhasil (Cloaked)`;
+            showToast("Proses Selesai!", "success");
         }
 
         // --- TinyURL Free ---
@@ -484,21 +501,24 @@
             const requestUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`;
             const response = await fetch(requestUrl);
             const text = await response.text();
-            if (text.includes("Error")) throw new Error(text);
+            if (text.toLowerCase().includes("error")) {
+                throw new Error(text);
+            }
             return text;
         }
 
-        // --- Generic API ---
+        // --- Generic API (TinyURL Premium format) ---
         async function callApi(endpoint, key, url) {
             const options = {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
-                body: JSON.stringify({ url: url, domain: "tinyurl.com" })
+                body: JSON.stringify({ url: url, domain: "tiny.one" }) // domain default bisa disesuaikan
             };
             const response = await fetch(endpoint, options);
             if (!response.ok) throw new Error('API Error');
             const data = await response.json();
-            return data.data.tiny_url || data.tiny_url || data.link;
+            // Handling respon yang berbeda-beda tergantung API provider
+            return data.data.tiny_url || data.tiny_url || data.link || data.url;
         }
 
         // --- Table UI ---
@@ -508,14 +528,14 @@
             tr.innerHTML = `
                 <td>${index}</td>
                 <td><a href="${original}" target="_blank" class="link-cell" title="${original}">${original}</a></td>
-                <td id="${id}-res"><span class="badge processing">Process...</span></td>
-                <td id="${id}-status">Processing</td>
+                <td id="${id}-res"><span class="badge processing">Waiting...</span></td>
+                <td id="${id}-status">Pending</td>
                 <td class="action-cell"></td>
             `;
             resultsBody.appendChild(tr);
         }
 
-        function updateTableRow(id, status, message, url) {
+        function updateTableRow(id, status, message, finalUrl) {
             const row = document.getElementById(id);
             if(!row) return;
             
@@ -526,9 +546,9 @@
             statusCell.innerHTML = `<span class="badge ${status}">${message}</span>`;
 
             if (status === 'success') {
-                resCell.innerHTML = `<a href="${url}" target="_blank" class="link-cell short">${url}</a>`;
+                resCell.innerHTML = `<a href="${finalUrl}" target="_blank" class="link-cell short" title="${finalUrl}">${finalUrl}</a>`;
                 actionCell.innerHTML = `
-                    <button class="icon-btn" onclick="copyText('${url}')" title="Copy">
+                    <button class="icon-btn" onclick="copyText('${finalUrl}')" title="Copy Cloaked Link">
                         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     </button>`;
             } else {
@@ -539,16 +559,17 @@
 
         // --- Copy All ---
         function copyAllShortLinks() {
-            const results = processedData.filter(i => i.status === 'success').map(i => i.short);
-            if (results.length === 0) return showToast("No valid data.", "error");
+            // Mengambil link final yang sudah di-cloak
+            const results = processedData.filter(i => i.status === 'success').map(i => i.final);
+            if (results.length === 0) return showToast("No valid data to copy.", "error");
             
             navigator.clipboard.writeText(results.join('\n')).then(() => {
-                showToast(`${results.length} Link Succesfull Coppied!`, "Success");
+                showToast(`${results.length} Cloaked Links Copied!`, "success");
             });
         }
 
         function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => showToast("Coppied!", "Success"));
+            navigator.clipboard.writeText(text).then(() => showToast("Copied!", "success"));
         }
 
         // --- Utilities ---
@@ -558,11 +579,22 @@
 
         function exportResults() {
             if (processedData.length === 0) return;
-            let csv = "data:text/csv;charset=utf-8,No,Original,Result,Status\n";
-            processedData.forEach(r => csv += `${r.id},"${r.original}","${r.short}",${r.status}\n`);
+            // CSV Header
+            let csv = "data:text/csv;charset=utf-8,No,Original,Shortened,Cloaked_Final,Status\n";
+            // CSV Rows
+            processedData.forEach(r => {
+                // Escape quotes untuk CSV
+                const safeOrig = `"${r.original.replace(/"/g, '""')}"`;
+                const safeFinal = `"${(r.final || '').replace(/"/g, '""')}"`;
+                csv += `${r.id},${safeOrig},${r.short},${safeFinal},${r.status}\n`;
+            });
+            
             const link = document.createElement("a");
-            link.href = encodeURI(csv); link.download = "nexlink_results.csv";
-            document.body.appendChild(link); link.click(); document.body.removeChild(link);
+            link.href = encodeURI(csv); 
+            link.download = "nexlink_cloaked_results.csv";
+            document.body.appendChild(link); 
+            link.click(); 
+            document.body.removeChild(link);
         }
 
         function showToast(msg, type = "info") {
@@ -570,7 +602,6 @@
             const toast = document.createElement('div');
             toast.className = 'toast';
             
-            // Icon based on type
             let icon = '';
             if(type === 'success') icon = '✅';
             if(type === 'error') icon = '❌';
@@ -583,7 +614,11 @@
             else toast.style.borderLeft = "4px solid var(--primary)";
 
             container.appendChild(toast);
-            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
+            setTimeout(() => { 
+                toast.style.opacity = '0'; 
+                toast.style.transform = 'translateY(10px)';
+                setTimeout(() => toast.remove(), 300); 
+            }, 3000);
         }
     </script>
 </body>
