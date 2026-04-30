@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NexLink - Bulk Shortener (TinyURL & Cutt.ly)</title>
+    <title>NexLink Tools Suite - Shortener & Injector</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* --- CSS VARIABLES & THEMES --- */
         :root {
-            /* Default Light Mode */
             --primary: #6366f1;
             --primary-dark: #4f46e5;
             --accent: #ec4899;
@@ -18,7 +17,7 @@
             
             /* Light Colors */
             --bg-gradient: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
-            --card-bg: rgba(255, 255, 255, 0.9);
+            --card-bg: rgba(255, 255, 255, 0.95);
             --card-border: rgba(255, 255, 255, 0.6);
             --input-bg: #f8fafc;
             --text-main: #1e293b;
@@ -37,7 +36,7 @@
         /* Dark Mode Override */
         [data-theme="dark"] {
             --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
-            --card-bg: rgba(30, 41, 59, 0.85);
+            --card-bg: rgba(30, 41, 59, 0.9);
             --card-border: rgba(255, 255, 255, 0.1);
             --input-bg: #1e293b;
             --text-main: #f8fafc;
@@ -55,158 +54,131 @@
             background: var(--bg-gradient);
             color: var(--text-main);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            padding: 40px 20px;
+            padding: 20px;
             background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
             background-size: 24px 24px;
         }
 
-        .container {
-            width: 100%;
-            max-width: 1100px;
+        /* --- MAIN LAYOUT (SPLIT) --- */
+        .main-wrapper {
+            display: flex;
+            gap: 20px;
+            max-width: 2000px;
+            margin: 0 auto;
+            align-items: flex-start;
+        }
+
+        .tool-container {
+            flex: 1;
             background: var(--card-bg);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: var(--radius);
             border: 1px solid var(--card-border);
             box-shadow: var(--shadow-lg);
-            padding: 40px;
-            animation: fadeIn 0.6s ease-out;
-            position: relative;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            min-height: 90vh; /* Agar tinggi seimbang */
         }
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .tool-container { animation: fadeIn 0.6s ease-out; }
 
         /* --- HEADER & THEME TOGGLE --- */
-        header { text-align: center; margin-bottom: 35px; position: relative; }
+        header { text-align: center; margin-bottom: 25px; position: relative; border-bottom: 1px solid var(--border-color); padding-bottom: 20px; }
         
-        .theme-toggle-btn {
-            position: absolute;
-            top: 0; right: 0;
+        /* Global Theme Toggle (Fixed Position) */
+        .global-theme-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
             background: var(--input-bg);
             border: 1px solid var(--border-color);
             color: var(--text-main);
-            width: 40px; height: 40px;
+            width: 45px; height: 45px;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            cursor: pointer; font-size: 1.2rem;
+            cursor: pointer; font-size: 1.4rem;
+            box-shadow: var(--shadow-hover);
         }
-        .theme-toggle-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .global-theme-toggle:hover { border-color: var(--primary); color: var(--primary); transform: scale(1.1); }
 
-        .logo { display: inline-flex; align-items: center; gap: 10px; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 10px; }
-        h1 { font-size: 2rem; font-weight: 800; letter-spacing: -0.5px; }
-        p.subtitle { color: var(--text-muted); font-size: 1rem; }
+        .logo { display: inline-flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 700; color: var(--primary); margin-bottom: 5px; }
+        h2 { font-size: 1.5rem; font-weight: 800; margin-bottom: 5px; }
+        p.subtitle { color: var(--text-muted); font-size: 0.9rem; }
+        .badge-group { display: flex; justify-content: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+        .feat-badge { font-size: 0.7rem; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 3px 8px; border-radius: 12px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.2); }
 
-        .badge-group { display: flex; justify-content: center; gap: 10px; margin-top: 15px; }
-        .feat-badge { font-size: 0.75rem; background: rgba(99, 102, 241, 0.1); color: var(--primary); padding: 4px 12px; border-radius: 20px; font-weight: 600; border: 1px solid rgba(99, 102, 241, 0.2); }
-
-        /* --- SETTINGS SECTION --- */
-        .api-config {
-            background: rgba(99, 102, 241, 0.05);
-            border: 1px solid rgba(99, 102, 241, 0.2);
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 30px;
-            transition: all 0.3s ease;
-        }
-        .api-config:hover { border-color: var(--primary); }
-        .api-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
-        .api-title { font-weight: 600; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; font-size: 0.95rem; }
-        .api-content { display: none; margin-top: 20px; grid-template-columns: 1fr 1fr; gap: 20px; animation: slideDown 0.3s ease; }
-        .api-content.active { display: grid; }
+        /* --- SHARED COMPONENTS --- */
+        .section-title { font-weight: 600; font-size: 1rem; color: var(--text-main); margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between; }
         
-        .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; }
-        .form-group input, .form-group select {
-            width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 8px; 
-            font-size: 0.95rem; transition: 0.2s; background: var(--input-bg); color: var(--text-main);
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 10px 14px; border: 1px solid var(--border-color); border-radius: 8px; 
+            font-size: 0.9rem; transition: 0.2s; background: var(--input-bg); color: var(--text-main);
         }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
-        
-        .api-note { grid-column: span 2; font-size: 0.85rem; color: var(--text-muted); background: var(--input-bg); padding: 12px; border-radius: 6px; line-height: 1.5; border: 1px solid var(--border-color); }
-
-        /* --- INPUT --- */
-        .input-wrapper { position: relative; margin-bottom: 30px; }
-        .label-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-        .label-row label { font-weight: 700; font-size: 1.1rem; color: var(--text-main); }
-        
-        .dropdown { position: relative; display: inline-block; }
-        .dropdown-btn {
-            background: var(--card-bg); border: 1px solid var(--border-color); padding: 8px 16px; 
-            border-radius: 8px; font-size: 0.85rem; font-weight: 600; color: var(--text-main);
-            cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s;
-            box-shadow: var(--shadow-sm);
-        }
-        .dropdown-btn:hover { border-color: var(--primary); color: var(--primary); }
-        
-        .dropdown-content {
-            display: none; position: absolute; right: 0; top: 110%; background: var(--card-bg);
-            min-width: 220px; box-shadow: var(--shadow-hover); border-radius: 10px;
-            border: 1px solid var(--border-color); overflow: hidden; z-index: 20;
-            animation: fadeInMenu 0.2s ease;
-        }
-        .dropdown-content a {
-            color: var(--text-main); padding: 12px 16px; text-decoration: none; 
-            display: block; font-size: 0.9rem; font-weight: 500; transition: 0.1s;
-            border-bottom: 1px solid var(--border-color);
-        }
-        .dropdown-content a:last-child { border-bottom: none; }
-        .dropdown-content a:hover { background: var(--input-bg); color: var(--primary); }
-        .dropdown:hover .dropdown-content { display: block; }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
 
         .info-box {
             background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: var(--text-main);
-            padding: 12px; border-radius: 8px; margin-bottom: 20px; font-size: 0.9rem;
-            display: flex; gap: 10px; align-items: center;
+            padding: 10px; border-radius: 8px; margin-bottom: 15px; font-size: 0.85rem;
+            display: flex; gap: 8px; align-items: flex-start;
         }
-        .info-box svg { color: var(--success); flex-shrink: 0; }
+        .info-box svg { color: var(--success); flex-shrink: 0; margin-top: 2px; }
 
-        textarea {
-            width: 100%; height: 180px; padding: 16px; border: 2px solid var(--border-color); border-radius: 12px; 
-            resize: vertical; font-family: 'JetBrains Mono', monospace; font-size: 0.9rem;
-            background: var(--input-bg); transition: 0.3s; color: var(--text-main);
+        /* --- NEXLINK SPECIFIC --- */
+        .api-config {
+            background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2);
+            padding: 15px; border-radius: 12px; margin-bottom: 20px;
         }
-        textarea:focus { outline: none; border-color: var(--primary); background: var(--card-bg); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.05); }
+        .api-header { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
+        .api-title { font-weight: 600; color: var(--primary-dark); display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
+        .api-content { display: none; margin-top: 15px; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .api-content.active { display: grid; }
+
+        /* --- PARAMBOT SPECIFIC --- */
+        .config-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px; }
 
         /* --- BUTTONS --- */
-        .actions { display: flex; gap: 16px; margin-top: 24px; }
+        .actions { display: flex; gap: 10px; margin-top: 15px; }
         .btn {
-            padding: 12px 24px; border-radius: 10px; border: none; cursor: pointer; 
-            font-weight: 600; font-size: 0.95rem; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 20px; border-radius: 8px; border: none; cursor: pointer; 
+            font-weight: 600; font-size: 0.9rem; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
         }
         .btn-primary { 
             background: linear-gradient(135deg, var(--primary), var(--primary-dark)); 
             color: white; box-shadow: 0 4px 6px -1px rgba(79, 70, 229, 0.3); flex: 1;
         }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.4); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
-        
         .btn-secondary { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-muted); }
         .btn-secondary:hover { background: var(--input-bg); color: var(--text-main); border-color: var(--text-muted); }
 
-        /* --- TABLE --- */
-        .results-section { display: none; margin-top: 40px; animation: slideUp 0.5s ease; }
-        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .stats-pill {
-            background: var(--input-bg); border: 1px solid var(--border-color); padding: 6px 12px; 
-            border-radius: 20px; font-size: 0.85rem; color: var(--text-muted); font-weight: 500;
-        }
+        /* --- TABLES --- */
+        .results-section { display: none; margin-top: 25px; animation: slideUp 0.5s ease; flex-grow: 1; overflow: hidden; display: flex; flex-direction: column;}
+        .results-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         
-        .table-container { overflow-x: auto; border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); }
-        table { width: 100%; border-collapse: collapse; min-width: 800px; }
-        th { 
-            text-align: left; padding: 16px; background: var(--input-bg); color: var(--text-muted); 
-            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 2px solid var(--border-color);
+        .table-container { 
+            overflow: auto; 
+            border-radius: 12px; border: 1px solid var(--border-color); background: var(--card-bg); 
+            flex-grow: 1; /* Fills remaining space */
+            max-height: 500px;
         }
-        td { padding: 16px; border-bottom: 1px solid var(--border-color); font-size: 0.9rem; color: var(--text-main); vertical-align: middle; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th { 
+            position: sticky; top: 0;
+            text-align: left; padding: 12px; background: var(--input-bg); color: var(--text-muted); 
+            font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; border-bottom: 2px solid var(--border-color); z-index: 10;
+        }
+        td { padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-main); vertical-align: middle; }
         tr:last-child td { border-bottom: none; }
         tr:hover td { background: var(--input-bg); }
 
-        .link-cell { max-width: 350px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); text-decoration: none; display: block; }
-        .link-cell.short { color: var(--primary); font-weight: 600; }
-        .link-cell.short:hover { text-decoration: underline; }
+        .link-cell { max-width: 300px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-main); text-decoration: none; display: block; }
+        .link-cell.result { color: var(--primary); font-weight: 600; }
 
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+        .badge { padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
         .badge.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .badge.error { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .badge.processing { background: rgba(59, 130, 246, 0.1); color: #3b82f6; }
@@ -214,472 +186,400 @@
         .action-cell { text-align: right; }
         .icon-btn { 
             background: var(--input-bg); border: 1px solid var(--border-color); cursor: pointer; color: var(--text-muted); 
-            padding: 8px; border-radius: 8px; transition: 0.2s; width: 36px; height: 36px; display: inline-flex; align-items: center; justify-content: center;
+            padding: 6px; border-radius: 6px; transition: 0.2s; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
         }
-        .icon-btn:hover { background: var(--primary); color: white; transform: scale(1.1); border-color: var(--primary); }
+        .icon-btn:hover { background: var(--primary); color: white; }
 
         /* --- TOAST & LOADER --- */
-        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+        #toast-container { position: fixed; bottom: 30px; right: 30px; z-index: 2000; display: flex; flex-direction: column; gap: 10px; }
         .toast { 
-            background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 14px 24px; border-radius: 10px; 
+            background: var(--input-bg); color: var(--text-main); border: 1px solid var(--border-color); padding: 12px 20px; border-radius: 10px; 
             font-size: 0.9rem; box-shadow: var(--shadow-hover); 
             animation: slideInRight 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
             display: flex; align-items: center; gap: 10px;
         }
-        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
         .loading-overlay {
             display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; flex-direction: column;
+            backdrop-filter: blur(4px); z-index: 1500; align-items: center; justify-content: center; flex-direction: column;
         }
-        .spinner { 
-            width: 50px; height: 50px; border: 4px solid var(--border-color); 
-            border-top: 4px solid var(--primary); border-radius: 50%; 
-            animation: spin 1s linear infinite; 
-        }
-        .loading-overlay p { color: white; margin-top: 15px; font-weight: 600; } 
-        .loading-overlay p.sub { color: #ddd; font-size: 0.9rem; font-weight: 400; }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border-color); border-top: 3px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .loading-overlay p { color: white; margin-top: 10px; font-weight: 600; } 
+        .loading-overlay p.sub { color: #ddd; font-size: 0.85rem; font-weight: 400; }
 
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
 
-        @media (max-width: 768px) {
-            .container { padding: 25px; }
+        /* --- RESPONSIVE --- */
+        @media (max-width: 900px) {
+            .main-wrapper { flex-direction: column; }
+            .tool-container { min-height: auto; }
             .api-content { grid-template-columns: 1fr; }
-            .actions { flex-direction: column; }
-            .results-header { flex-direction: column; align-items: flex-start; gap: 10px; }
         }
     </style>
 </head>
 <body>
 
+    <!-- Global Theme Toggle -->
+    <button class="global-theme-toggle" onclick="toggleTheme()" title="Ganti Tema">🌙</button>
+
     <div class="loading-overlay" id="loadingOverlay">
         <div class="spinner"></div>
-        <p id="loadingText">Processing Link...</p>
-        <p class="sub" id="loadingSub">Injecting Params & Cloaking...</p>
+        <p id="loadingText">Processing...</p>
+        <p class="sub" id="loadingSub">Please wait...</p>
     </div>
 
     <div id="toast-container"></div>
 
-    <div class="container">
-        <header>
-            <button class="theme-toggle-btn" id="themeToggle" onclick="toggleTheme()" title="Ganti Tema">🌙</button>
-            <div class="logo">
-                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
-                <h1>NexLink Pro</h1>
-            </div>
-            <p class="subtitle">Bulk URL Shortener (TinyURL & Cutt.ly) + Cloaking</p>
-            <div class="badge-group">
-                <span class="feat-badge">Multi-Shortener</span>
-                <span class="feat-badge">Smart Delay</span>
-                <span class="feat-badge">FB Cloak</span>
-                <span class="feat-badge">Dark Mode</span>
-            </div>
-        </header>
-
-        <!-- API Settings -->
-        <section class="api-config">
-            <div class="api-header" onclick="toggleApiConfig()">
-                <div class="api-title">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
-                    Konfigurasi API & Delay
+    <div class="main-wrapper">
+        
+        <!-- ========================================= -->
+        <!-- BAGIAN KIRI: NEXLINK PRO (Shortener) -->
+        <!-- ========================================= -->
+        <div class="tool-container" id="nexlink">
+            <header>
+                <div class="logo">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    NexLink Pro
                 </div>
-                <span id="apiToggleIcon">▼</span>
+                <h2>Shortener & Cloak</h2>
+                <p class="subtitle">TinyURL / Cutt.ly + FB Debug</p>
+                <div class="badge-group">
+                    <span class="feat-badge">Multi-Shortener</span>
+                    <span class="feat-badge">Auto Params</span>
+                    <span class="feat-badge">FB Cloak</span>
+                </div>
+            </header>
+
+            <!-- Settings -->
+            <section class="api-config">
+                <div class="api-header" onclick="toggleApiConfig()">
+                    <div class="api-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                        Pengaturan API
+                    </div>
+                    <span id="apiToggleIcon">▼</span>
+                </div>
+                <div class="api-content" id="apiContent">
+                    <div class="form-group">
+                        <label>Provider</label>
+                        <select id="providerSelect" onchange="toggleProviderFields()">
+                            <option value="tinyurl">TinyURL (Gratis)</option>
+                            <option value="cuttly">Cutt.ly (Butuh API Key)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>API Key (Cutt.ly)</label>
+                        <input type="password" id="apiKey" placeholder="Paste Key...">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Delay (Detik)</label>
+                        <input type="number" id="delayInput" value="2" min="0" step="0.5">
+                    </div>
+                </div>
+            </section>
+
+            <div class="info-box">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div><strong>Alur:</strong> Input &rarr; Add Random Param &rarr; Shorten &rarr; FB Cloak.</div>
             </div>
-            <div class="api-content" id="apiContent">
-                <!-- Provider Selection -->
-                <div class="form-group">
-                    <label>Pilih Shortener</label>
-                    <select id="providerSelect" onchange="toggleProviderFields()">
-                        <option value="tinyurl">TinyURL (Public - No Key Needed)</option>
-                        <option value="cuttly">Cutt.ly (Need API Key)</option>
+
+            <div class="form-group">
+                <div class="section-title">
+                    <span>Input Links</span>
+                    <select id="templateSelect" onchange="loadTemplate(this.value)" style="width: auto; padding: 4px 8px; font-size: 0.8rem;">
+                        <option value="">Pilih Template...</option>
+                        <option value="node">Template Node</option>
+                        <option value="example">Contoh Umum</option>
                     </select>
                 </div>
-
-                <div class="form-group">
-                    <label>API Key</label>
-                    <input type="password" id="apiKey" placeholder="Paste API Key disini...">
-                    <small style="color:var(--text-muted); display:block; margin-top:5px;">Wajib untuk Cutt.ly. Opsional untuk TinyURL Premium.</small>
-                </div>
-
-                <div class="form-group" style="grid-column: span 2;">
-                    <label>Delay / Jeda (Detik)</label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <input type="number" id="delayInput" value="2" min="0" max="10" step="0.5" style="width: 100px;">
-                        <span style="font-size: 0.9rem; color: var(--text-muted);">Waktu tunggu antar pembuatan link (Default: 2s) untuk menghindari blokir.</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Main Input -->
-        <section class="input-section">
-            <div class="info-box">
-                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                <div>
-                    <strong>Proses Otomatis:</strong> 
-                    1. Input URL &rarr; 
-                    2. Tambah Parameter Unik (?u=xyz) &rarr; 
-                    3. Shorten (TinyURL/Cutt.ly) + Delay &rarr; 
-                    4. Wrap dengan FB Debug.
-                </div>
-            </div>
-
-            <div class="input-wrapper">
-                <div class="label-row">
-                    <label>Input Links</label>
-                    
-                    <div class="dropdown">
-                        <button class="dropdown-btn">
-                            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-                            Pilih Template
-                        </button>
-                        <div class="dropdown-content">
-                            <a onclick="loadTemplate('node')">📂 Template Node</a>
-                            <a onclick="loadTemplate('example')">🌐 Examples of General Links</a>
-                        </div>
-                    </div>
-                </div>
-
-                <textarea id="urlInput" placeholder="Paste your link list here...&#10;One link per line"></textarea>
+                <textarea id="urlInput" rows="5" placeholder="https://example.com/page1&#10;https://example.com/page2"></textarea>
             </div>
             
             <div class="actions">
-                <button class="btn btn-secondary" onclick="document.getElementById('urlInput').value=''">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                    Reset Input
-                </button>
-                <button class="btn btn-primary" id="processBtn" onclick="startProcessing()">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></svg>
-                    Process & Cloak
-                </button>
+                <button class="btn btn-secondary" onclick="document.getElementById('urlInput').value=''">Reset</button>
+                <button class="btn btn-primary" onclick="startProcessing()">Process & Cloak</button>
             </div>
-        </section>
 
-        <!-- Results -->
-        <section class="results-section" id="resultsSection">
-            <div class="results-header">
-                <div class="stats-pill" id="statusText">Status: Ready</div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn btn-secondary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="exportResults()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                        CSV
-                    </button>
-                    <button class="btn btn-primary" style="padding: 8px 16px; font-size: 0.85rem;" onclick="copyAllShortLinks()">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                        Copy All
-                    </button>
+            <section class="results-section" id="resultsSection">
+                <div class="results-header">
+                    <span id="statusText" style="font-size: 0.85rem; color: var(--text-muted);">Status: Ready</span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="exportResults()">CSV</button>
+                        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="copyAllShortLinks()">Copy</button>
+                    </div>
                 </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="35%">Original</th>
+                                <th width="45%">Final (Cloaked)</th>
+                                <th width="15%">Act</th>
+                            </tr>
+                        </thead>
+                        <tbody id="resultsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ========================================= -->
+        <!-- BAGIAN KANAN: PARAMBOT (Injector) -->
+        <!-- ========================================= -->
+        <div class="tool-container" id="parambot">
+            <header>
+                <div class="logo" style="color: var(--accent);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path></svg>
+                    ParamBot
+                </div>
+                <h2 style="color: var(--accent);">Random Injector</h2>
+                <p class="subtitle">WAITINGYOU + AlphaNumeric</p>
+                <div class="badge-group">
+                    <span class="feat-badge">Random Key (YZ/RT/UY/LG)</span>
+                    <span class="feat-badge">Value: WAITINGYOU + Code</span>
+                </div>
+            </header>
+
+            <div class="info-box" style="background: rgba(236, 72, 153, 0.1); border-color: rgba(236, 72, 153, 0.2);">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <div><strong>Format:</strong> <code>?KEY=WAITINGYOU</code> + Random 6 Chars.</div>
+            </div>
+
+            <div class="form-group">
+                <div class="section-title">List Link Target</div>
+                <textarea id="paramInput" rows="5" placeholder="https://target.com/page1&#10;https://target.com/page2"></textarea>
             </div>
             
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th width="5%">#</th>
-                            <th width="30%">Original Link</th>
-                            <th width="40%">Final Result (Cloaked)</th>
-                            <th width="15%">Status</th>
-                            <th width="10%">Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="resultsBody"></tbody>
-                </table>
+            <div class="actions">
+                <button class="btn btn-secondary" onclick="document.getElementById('paramInput').value=''">Reset</button>
+                <button class="btn btn-primary" style="background: linear-gradient(135deg, var(--accent), #db2777);" onclick="processParams()">Generate Param</button>
             </div>
-        </section>
+
+            <section class="results-section" id="paramResultsSection" style="display:none;">
+                <div class="results-header">
+                    <span style="font-size: 0.85rem; color: var(--text-muted);">Hasil: <span id="paramResultCount">0</span></span>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 0.75rem;" onclick="exportParamCSV()">CSV</button>
+                        <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; background: var(--accent);" onclick="copyAllParams()">Copy</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th width="5%">#</th>
+                                <th width="45%">Original</th>
+                                <th width="50%">Result</th>
+                            </tr>
+                        </thead>
+                        <tbody id="paramResultsBody"></tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
     </div>
 
     <script>
-        // --- State & Theme ---
-        let processedData = [];
+        /* --- GLOBAL VARIABLES --- */
+        let processedDataNex = [];
+        let processedDataParam = [];
         let currentTheme = 'light';
         let isProcessing = false;
-        let stopProcessing = false;
 
-        // --- DOM ---
-        const resultsSection = document.getElementById('resultsSection');
-        const resultsBody = document.getElementById('resultsBody');
-        const loadingOverlay = document.getElementById('loadingOverlay');
-        const urlInput = document.getElementById('urlInput');
-        const apiKeyInput = document.getElementById('apiKey');
-        const providerSelect = document.getElementById('providerSelect');
-        const delayInput = document.getElementById('delayInput');
-        const processBtn = document.getElementById('processBtn');
-        const loadingText = document.getElementById('loadingText');
-        const loadingSub = document.getElementById('loadingSub');
-
-        // --- Theme Logic ---
+        /* --- THEME LOGIC --- */
         function toggleTheme() {
             if (currentTheme === 'light') {
                 document.body.setAttribute('data-theme', 'dark');
-                document.getElementById('themeToggle').textContent = '☀️';
+                document.querySelector('.global-theme-toggle').textContent = '☀️';
                 currentTheme = 'dark';
             } else {
                 document.body.removeAttribute('data-theme');
-                document.getElementById('themeToggle').textContent = '🌙';
+                document.querySelector('.global-theme-toggle').textContent = '🌙';
                 currentTheme = 'light';
             }
         }
 
-        function toggleApiConfig() {
-            const content = document.getElementById('apiContent');
-            const icon = document.getElementById('apiToggleIcon');
-            content.classList.toggle('active');
-            icon.textContent = content.classList.contains('active') ? '▲' : '▼';
-        }
-
-        function toggleProviderFields() {
-            // Visual only, logic handled in startProcessing
-            const provider = providerSelect.value;
-            if(provider === 'cuttly') {
-                apiKeyInput.placeholder = "Wajib: Masukkan API Key Cutt.ly";
-            } else {
-                apiKeyInput.placeholder = "Opsional: Jika pakai TinyURL Premium";
-            }
-        }
-
-        // --- Template Loader ---
-        function loadTemplate(type) {
-            let text = "";
-            if (type === 'node') {
-                text = `https://ho.link/gregoryadams78053
-https://ho.link/ernest_gonzalez
-https://ho.link/purpleheart245
-https://ho.link/prithviliena`;
-                showToast("Template Node loaded.", "success");
-            } else if (type === 'example') {
-                text = "https://www.tokopedia.com/\nhttps://shopee.co.id/\nhttps://www.forbes.com/\nhttps://www.tiktok.com/\nhttps://www.jne.co.id/";
-                showToast("Example Link loaded.", "success");
-            }
-            urlInput.value = text;
-        }
-
-        // --- Helpers ---
-        function generateRandomString(length = 8) {
-            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let result = '';
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return result;
-        }
-
-        function applyFBCloak(url) {
-            const encodedUrl = encodeURIComponent(url);
-            return `https://web.facebook.com/l.php?u=${encodedUrl}`;
-        }
-
-        // --- API CALLS ---
-        async function callTinyUrlFree(url) {
-            const requestUrl = `https://tinyurl.com/api-create.php?url=${encodeURIComponent(url)}`;
-            const response = await fetch(requestUrl);
-            const text = await response.text();
-            if (text.toLowerCase().includes("error")) throw new Error(text);
-            return text;
-        }
-
-        async function callCuttly(url, key) {
-            const requestUrl = `https://cutt.ly/api/api.php?key=${key}&short=${encodeURIComponent(url)}`;
-            const response = await fetch(requestUrl);
-            const data = await response.json();
-            
-            if (data.url.status === "7") {
-                throw new Error("Cutt.ly: Domain blocked/Invalid");
-            }
-            if (data.url.status !== "7" && data.url.shortLink) {
-                 // Status 1-7 usually indicates issues, success usually returns shortLink
-                 // Based on Cuttly docs, success returns the object
-                 return data.url.shortLink;
-            }
-            throw new Error("Cutt.ly API Error");
-        }
-
-        // --- MAIN PROCESS ---
-        async function startProcessing() {
-            if (isProcessing) {
-                stopProcessing = true;
-                processBtn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Stop`;
-                return;
-            }
-
-            const urls = urlInput.value.split('\n').map(u => u.trim()).filter(u => u);
-            const provider = providerSelect.value;
-            const apiKey = apiKeyInput.value.trim();
-            const delay = parseFloat(delayInput.value) * 1000 || 2000; // ms
-
-            if (urls.length === 0) return showToast("Input is still empty!", "error");
-            if (provider === 'cuttly' && !apiKey) return showToast("API Key Cutt.ly Wajib Diisi!", "error");
-
-            isProcessing = true;
-            stopProcessing = false;
-            processBtn.disabled = true; // Disable button briefly to prevent double click
-            processBtn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg> Stop Process`;
-
-            loadingOverlay.style.display = 'flex';
-            resultsSection.style.display = 'block';
-            resultsBody.innerHTML = '';
-            processedData = [];
-            
-            document.getElementById('statusText').innerText = `Processing ${urls.length} links (Provider: ${provider.toUpperCase()})...`;
-
-            for (let i = 0; i < urls.length; i++) {
-                if (stopProcessing) {
-                    showToast("Proses Dihentikan Manual.", "warning");
-                    break;
-                }
-
-                const originalUrl = urls[i];
-                const rowId = `row-${i}`;
-                addTableRow(rowId, i+1, originalUrl);
-                
-                loadingText.innerText = `Processing Link ${i + 1} / ${urls.length}...`;
-                loadingSub.innerText = `Waiting ${delay/1000}s delay...`;
-                
-                let result = { id: i+1, original: originalUrl, short: '-', final: '-', status: 'pending' };
-
-                if (!isValidUrl(originalUrl)) {
-                    updateTableRow(rowId, 'error', 'URL Not Valid', '-');
-                    processedData.push(result);
-                    continue;
-                }
-
-                try {
-                    // STEP 1: Add Param
-                    const separator = originalUrl.includes('?') ? '&' : '?';
-                    const randomParam = generateRandomString(8);
-                    const urlWithParam = `${originalUrl}${separator}u=${randomParam}`;
-
-                    // STEP 2: Shorten
-                    let shortUrl = "";
-                    if (provider === 'cuttly') {
-                        shortUrl = await callCuttly(urlWithParam, apiKey);
-                    } else {
-                        // TinyURL logic
-                        shortUrl = await callTinyUrlFree(urlWithParam);
-                    }
-
-                    // STEP 3: FB Cloak
-                    const finalCloakedUrl = applyFBCloak(shortUrl);
-
-                    updateTableRow(rowId, 'success', 'Cloaked', finalCloakedUrl);
-                    result.short = shortUrl;
-                    result.final = finalCloakedUrl;
-                    result.status = 'success';
-
-                } catch (error) {
-                    console.error(error);
-                    updateTableRow(rowId, 'error', 'Gagal', error.message);
-                }
-                
-                processedData.push(result);
-
-                // STEP 4: Delay (Natural Pause)
-                if (i < urls.length - 1 && !stopProcessing) {
-                    await new Promise(r => setTimeout(r, delay));
-                }
-            }
-
-            loadingOverlay.style.display = 'none';
-            isProcessing = false;
-            processBtn.disabled = false;
-            processBtn.innerHTML = `<svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></svg> Process & Cloak`;
-            
-            const successCount = processedData.filter(d => d.status === 'success').length;
-            document.getElementById('statusText').innerText = `Selesai: ${successCount}/${urls.length} Berhasil`;
-            showToast("Proses Selesai!", "success");
-        }
-
-        // --- UI UPDATES ---
-        function addTableRow(id, index, original) {
-            const tr = document.createElement('tr');
-            tr.id = id;
-            tr.innerHTML = `
-                <td>${index}</td>
-                <td><a href="${original}" target="_blank" class="link-cell" title="${original}">${original}</a></td>
-                <td id="${id}-res"><span class="badge processing">Waiting...</span></td>
-                <td id="${id}-status">Pending</td>
-                <td class="action-cell"></td>
-            `;
-            resultsBody.appendChild(tr);
-        }
-
-        function updateTableRow(id, status, message, finalUrl) {
-            const row = document.getElementById(id);
-            if(!row) return;
-            
-            const resCell = document.getElementById(`${id}-res`);
-            const statusCell = document.getElementById(`${id}-status`);
-            const actionCell = row.querySelector('.action-cell');
-
-            statusCell.innerHTML = `<span class="badge ${status}">${message}</span>`;
-
-            if (status === 'success') {
-                resCell.innerHTML = `<a href="${finalUrl}" target="_blank" class="link-cell short" title="${finalUrl}">${finalUrl}</a>`;
-                actionCell.innerHTML = `
-                    <button class="icon-btn" onclick="copyText('${finalUrl}')" title="Copy Cloaked Link">
-                        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
-                    </button>`;
-            } else {
-                resCell.innerHTML = `<span style="color:var(--danger); font-size:0.8rem;">${finalUrl}</span>`;
-                actionCell.innerHTML = '';
-            }
-        }
-
-        // --- UTILS ---
-        function copyAllShortLinks() {
-            const results = processedData.filter(i => i.status === 'success').map(i => i.final);
-            if (results.length === 0) return showToast("No valid data to copy.", "error");
-            navigator.clipboard.writeText(results.join('\n')).then(() => {
-                showToast(`${results.length} Links Copied!`, "success");
-            });
-        }
-
-        function copyText(text) {
-            navigator.clipboard.writeText(text).then(() => showToast("Copied!", "success"));
-        }
-
-        function isValidUrl(string) {
-            try { new URL(string); return true; } catch (_) { return false; }
-        }
-
-        function exportResults() {
-            if (processedData.length === 0) return;
-            let csv = "data:text/csv;charset=utf-8,No,Original,Shortened,Cloaked_Final,Status\n";
-            processedData.forEach(r => {
-                const safeOrig = `"${r.original.replace(/"/g, '""')}"`;
-                const safeFinal = `"${(r.final || '').replace(/"/g, '""')}"`;
-                csv += `${r.id},${safeOrig},${r.short},${safeFinal},${r.status}\n`;
-            });
-            const link = document.createElement("a");
-            link.href = encodeURI(csv); 
-            link.download = "nexlink_cloaked_results.csv";
-            document.body.appendChild(link); 
-            link.click(); 
-            document.body.removeChild(link);
-        }
-
+        /* --- TOAST --- */
         function showToast(msg, type = "info") {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
             toast.className = 'toast';
-            
-            let icon = '';
-            if(type === 'success') icon = '✅';
-            if(type === 'error') icon = '❌';
-            if(type === 'warning') icon = '⚠️';
-            if(type === 'info') icon = 'ℹ️';
-
+            let icon = type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️');
             toast.innerHTML = `<span>${icon}</span> <span>${msg}</span>`;
             if(type === 'error') toast.style.borderColor = 'var(--danger)';
             else if(type === 'success') toast.style.borderColor = 'var(--success)';
             else toast.style.borderColor = 'var(--primary)';
-
             container.appendChild(toast);
-            setTimeout(() => { 
-                toast.style.opacity = '0'; 
-                toast.style.transform = 'translateY(10px)';
-                setTimeout(() => toast.remove(), 300); 
-            }, 3000);
+            setTimeout(() => { toast.style.opacity = '0'; setTimeout(() => toast.remove(), 300); }, 3000);
         }
+
+        /* =========================================
+           NEXLINK PRO LOGIC (LEFT)
+           ========================================= */
+        function toggleApiConfig() {
+            const c = document.getElementById('apiContent');
+            const i = document.getElementById('apiToggleIcon');
+            c.classList.toggle('active');
+            i.textContent = c.classList.contains('active') ? '▲' : '▼';
+        }
+
+        function toggleProviderFields() {
+            const v = document.getElementById('providerSelect').value;
+            const i = document.getElementById('apiKey');
+            i.placeholder = v === 'cuttly' ? "Wajib: API Key Cutt.ly" : "Opsional: API Key TinyURL";
+        }
+
+        function loadTemplate(type) {
+            const t = document.getElementById('urlInput');
+            if (type === 'node') t.value = "https://ho.link/gregoryadams78053\nhttps://ho.link/ernest_gonzalez\nhttps://ho.link/purpleheart245\nhttps://ho.link/prithviliena";
+            else if (type === 'example') t.value = "https://www.tokopedia.com/\nhttps://shopee.co.id/\nhttps://www.forbes.com/";
+            showToast("Template loaded.", "success");
+        }
+
+        async function startProcessing() {
+            if (isProcessing) return; // Prevent double click
+            const urls = document.getElementById('urlInput').value.split('\n').map(u => u.trim()).filter(u => u);
+            const provider = document.getElementById('providerSelect').value;
+            const key = document.getElementById('apiKey').value.trim();
+            const delay = (parseFloat(document.getElementById('delayInput').value) || 2) * 1000;
+
+            if (urls.length === 0) return showToast("Input kosong!", "error");
+            if (provider === 'cuttly' && !key) return showToast("API Key Cutt.ly dibutuhkan!", "error");
+
+            isProcessing = true;
+            const overlay = document.getElementById('loadingOverlay');
+            const lTxt = document.getElementById('loadingText');
+            const lSub = document.getElementById('loadingSub');
+            overlay.style.display = 'flex';
+            
+            document.getElementById('resultsSection').style.display = 'flex';
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            processedDataNex = [];
+
+            for(let i=0; i<urls.length; i++) {
+                if(!isProcessing) break;
+                lTxt.innerText = `Processing ${i+1}/${urls.length}`;
+                lSub.innerText = `Waiting ${delay/1000}s...`;
+                
+                const rowId = `n-row-${i}`;
+                const tr = document.createElement('tr');
+                tr.id = rowId;
+                tr.innerHTML = `<td>${i+1}</td><td><span class="link-cell">${urls[i]}</span></td><td id="${rowId}-res"><span class="badge processing">...</span></td><td class="action-cell"></td>`;
+                tbody.appendChild(tr);
+
+                try {
+                    // 1. Add Param
+                    const sep = urls[i].includes('?') ? '&' : '?';
+                    const rnd = Math.random().toString(36).substring(2, 10);
+                    const urlP = `${urls[i]}${sep}u=${rnd}`;
+
+                    // 2. Shorten
+                    let short = '';
+                    if(provider === 'cuttly') {
+                        const res = await fetch(`https://cutt.ly/api/api.php?key=${key}&short=${encodeURIComponent(urlP)}`);
+                        const d = await res.json();
+                        if(d.url.status === "7") throw new Error("Blocked");
+                        short = d.url.shortLink;
+                    } else {
+                        const res = await fetch(`https://tinyurl.com/api-create.php?url=${encodeURIComponent(urlP)}`);
+                        short = await res.text();
+                    }
+
+                    // 3. Cloak
+                    const final = `https://web.facebook.com/l.php?u=${encodeURIComponent(short)}`;
+                    
+                    document.getElementById(`${rowId}-res`).innerHTML = `<a href="${final}" target="_blank" class="link-cell result">${final}</a>`;
+                    tr.querySelector('.action-cell').innerHTML = `<button class="icon-btn" onclick="navigator.clipboard.writeText('${final}');showToast('Copied!')">📋</button>`;
+                    
+                    processedDataNex.push({orig: urls[i], final: final});
+
+                } catch(e) {
+                    document.getElementById(`${rowId}-res`).innerHTML = `<span style="color:var(--danger)">Error</span>`;
+                }
+                
+                if(i < urls.length - 1) await new Promise(r => setTimeout(r, delay));
+            }
+            overlay.style.display = 'none';
+            isProcessing = false;
+            showToast("Selesai!", "success");
+        }
+
+        function copyAllShortLinks() {
+            const d = processedDataNex.map(i => i.final).join('\n');
+            if(!d) return;
+            navigator.clipboard.writeText(d);
+            showToast("All copied!", "success");
+        }
+
+        function exportResults() {
+            if(!processedDataNex.length) return;
+            let csv = "No,Original,Final\n";
+            processedDataNex.forEach((d, i) => csv += `${i+1},"${d.orig}","${d.final}"\n`);
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = "nexlink.csv";
+            link.click();
+        }
+
+        /* =========================================
+           PARAMBOT LOGIC (RIGHT)
+           ========================================= */
+        function processParams() {
+            const urls = document.getElementById('paramInput').value.split('\n').map(u => u.trim()).filter(u => u);
+            if (urls.length === 0) return showToast("Input kosong!", "error");
+
+            document.getElementById('paramResultsSection').style.display = 'flex';
+            const tbody = document.getElementById('paramResultsBody');
+            tbody.innerHTML = '';
+            processedDataParam = [];
+            
+            const keys = ['YZ', 'RT', 'UY', 'LG'];
+            const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+
+            urls.forEach((url, i) => {
+                // Logic
+                const k = keys[Math.floor(Math.random() * keys.length)];
+                const s = Array.from({length: 6}, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                const v = `WAITINGYOU${s}`;
+                const sep = url.includes('?') ? '&' : '?';
+                const final = `${url}${sep}${k}=${v}`;
+
+                processedDataParam.push(final);
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${i+1}</td>
+                    <td><span class="link-cell">${url}</span></td>
+                    <td><a href="${final}" target="_blank" class="link-cell result">${final}</a></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('paramResultCount').innerText = urls.length;
+            showToast("Param Generated!", "success");
+        }
+
+        function copyAllParams() {
+            if(!processedDataParam.length) return;
+            navigator.clipboard.writeText(processedDataParam.join('\n'));
+            showToast("All copied!", "success");
+        }
+
+        function exportParamCSV() {
+            if(!processedDataParam.length) return;
+            let csv = "No,Result\n";
+            processedDataParam.forEach((d, i) => csv += `${i+1},"${d}"\n`);
+            const link = document.createElement("a");
+            link.href = encodeURI("data:text/csv;charset=utf-8," + csv);
+            link.download = "params.csv";
+            link.click();
+        }
+
     </script>
 </body>
 </html>
